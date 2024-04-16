@@ -1,4 +1,4 @@
-package com.flexiserve.flexidemo.controller;
+package com.Bibliotek.Personal.controller;
 
 
 import org.springframework.stereotype.Controller;

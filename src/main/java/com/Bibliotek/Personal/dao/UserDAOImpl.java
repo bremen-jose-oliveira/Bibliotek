@@ -1,6 +1,6 @@
-package com.flexiserve.flexidemo.dao;
+package com.Bibliotek.Personal.dao;
 
-import com.flexiserve.flexidemo.entity.User;
+import com.Bibliotek.Personal.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;

@@ -1,4 +1,5 @@
-package com.flexiserve.flexidemo.entity;
+package com.Bibliotek.Personal.entity;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -14,6 +15,7 @@ public class User {
     private  String email;
     @Column(name = "password")
     private  String password;
+
 
 
     public  User(){};

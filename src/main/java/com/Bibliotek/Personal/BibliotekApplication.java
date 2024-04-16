@@ -1,7 +1,7 @@
-package com.flexiserve.flexidemo;
+package com.Bibliotek.Personal;
 
-import com.flexiserve.flexidemo.dao.UserDAO;
-import com.flexiserve.flexidemo.entity.User;
+import com.Bibliotek.Personal.dao.UserDAO;
+import com.Bibliotek.Personal.entity.User;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,18 +10,18 @@ import org.springframework.context.annotation.Bean;
 import java.util.List;
 
 @SpringBootApplication
-public class FlexidemoApplication {
+public class BibliotekApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(FlexidemoApplication.class, args);
+		SpringApplication.run(BibliotekApplication.class, args);
 	}
 
 	@Bean
 	public CommandLineRunner CommandLineRunner(UserDAO userDAO){
 		return runnner ->{
-			//createUser(userDAO);
+			createUser(userDAO);
 			//readUser(userDAO);
-			queryForUser(userDAO);
+			//queryForUser(userDAO);
 		};
 	}
 
@@ -46,6 +46,7 @@ public class FlexidemoApplication {
 	private void createUser(UserDAO userDAO){
 		System.out.println("create new User");
 		User testUser = new User( "test", "test@test.com", "test123");
+
 
 		System.out.println("saving the  new User");
 

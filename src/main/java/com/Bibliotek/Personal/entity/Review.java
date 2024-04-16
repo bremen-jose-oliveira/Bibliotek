@@ -1,6 +1,5 @@
-package com.flexiserve.flexidemo.entity;
+package com.Bibliotek.Personal.entity;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import jakarta.persistence.*;
 
 @Entity
