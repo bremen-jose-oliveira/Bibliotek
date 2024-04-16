@@ -1,6 +1,8 @@
 package com.Bibliotek.Personal;
 
+import com.Bibliotek.Personal.dao.BookDAO;
 import com.Bibliotek.Personal.dao.UserDAO;
+import com.Bibliotek.Personal.entity.Book;
 import com.Bibliotek.Personal.entity.User;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -17,13 +19,36 @@ public class BibliotekApplication {
 	}
 
 	@Bean
-	public CommandLineRunner CommandLineRunner(UserDAO userDAO){
+	public CommandLineRunner CommandLineRunner(BookDAO bookDAO){
 		return runnner ->{
-			createUser(userDAO);
+
+
+			createBook(bookDAO);
+			//createUser(userDAO);
 			//readUser(userDAO);
 			//queryForUser(userDAO);
 		};
 	}
+
+
+	private void createBook(BookDAO bookDAO){
+		System.out.println("Add a new Book");
+
+		Book testBook = new Book( "test", "test", 1923,"bla2331",1);
+
+
+		System.out.println("saving the  new User");
+
+		bookDAO.save(testBook);
+
+		int bookId = testBook.getId();
+		System.out.println("saved user. genarated id: " + bookId );
+
+		Book testId = bookDAO.findById(bookId);
+		System.out.println("found the Book: "+ testId);
+	};
+
+
 
 	private void queryForUser(UserDAO userDAO) {
 		List<User> theUsers = userDAO.findAll();
