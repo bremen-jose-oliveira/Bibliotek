@@ -34,7 +34,7 @@ public class BibliotekApplication {
 	private void createBook(BookDAO bookDAO){
 		System.out.println("Add a new Book");
 
-		Book testBook = new Book( "test", "test", 1923,"bla2331",1);
+		Book testBook = new Book( "test2", "test2", 1923,"bla2331",1);
 
 
 		System.out.println("saving the  new User");

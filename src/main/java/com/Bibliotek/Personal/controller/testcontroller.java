@@ -1,11 +1,21 @@
 package com.Bibliotek.Personal.controller;
 
 
+import com.Bibliotek.Personal.dao.BookDAO;
+import com.Bibliotek.Personal.dao.BookDAOImpl;
+import com.Bibliotek.Personal.entity.Book;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 @Controller
 public class testcontroller {
+    @Autowired
+    BookDAO book;
 
     //creating a  mapping for testing
 
@@ -17,5 +27,15 @@ public class testcontroller {
         return "/test";
 
     }
+
+    @RequestMapping(value="/books", method=RequestMethod.GET)
+    @ResponseBody
+    public List<Book> getAllBooks() {
+        return book.findAll();
+    }
+
+
+
+
 
 }
