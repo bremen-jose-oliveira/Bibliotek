@@ -41,5 +41,10 @@ public class BookDAOImpl implements BookDAO{
         return theQuery.getResultList();
     }
 
+    @Override
+    @Transactional
+    public void delete(Book theBook) {
+        entityManager.remove(entityManager.contains(theBook) ? theBook : entityManager.merge(theBook));
+    }
 
 }

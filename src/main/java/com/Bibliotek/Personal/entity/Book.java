@@ -1,43 +1,45 @@
 package com.Bibliotek.Personal.entity;
 
-
 import jakarta.persistence.*;
-
 
 @Entity
 @Table(name = "books")
-
 public class Book {
-
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id")
     private int id;
-    @Column(name = "Title")
-    private String Title;
-    @Column(name = "Author")
-    private String Author;
-    @Column(name = "Year")
-    private int Year;
-    @Column(name = "Publisher")
-    private String Publisher;
-    @Column(name = "user_id")
-    private  int userId;
 
+    @Column(name = "title")  // Use lowercase to match standard naming conventions
+    private String title;
+
+    @Column(name = "author")
+    private String author;
+
+    @Column(name = "year")
+    private int year;
+
+    @Column(name = "publisher")
+    private String publisher;
+
+    @Column(name = "user_id")
+    private int userId;
+
+    // Default constructor
     public Book() {
     }
 
+    // Constructor with parameters
     public Book(String title, String author, int year, String publisher, int userId) {
-        Title = title;
-        Author = author;
-        Year = year;
-        Publisher = publisher;
+        this.title = title;
+        this.author = author;
+        this.year = year;
+        this.publisher = publisher;
         this.userId = userId;
-
-
     }
 
+    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -47,35 +49,35 @@ public class Book {
     }
 
     public String getTitle() {
-        return Title;
+        return title;
     }
 
     public void setTitle(String title) {
-        Title = title;
+        this.title = title;
     }
 
     public String getAuthor() {
-        return Author;
+        return author;
     }
 
     public void setAuthor(String author) {
-        Author = author;
+        this.author = author;
     }
 
     public int getYear() {
-        return Year;
+        return year;
     }
 
     public void setYear(int year) {
-        Year = year;
+        this.year = year;
     }
 
     public String getPublisher() {
-        return Publisher;
+        return publisher;
     }
 
     public void setPublisher(String publisher) {
-        Publisher = publisher;
+        this.publisher = publisher;
     }
 
     public int getUserId() {
@@ -89,11 +91,11 @@ public class Book {
     @Override
     public String toString() {
         return "Book{" +
-                " id=" + id +
-                ", Title='" + Title + '\'' +
-                ", Author='" + Author + '\'' +
-                ", Year=" + Year +
-                ", Publisher='" + Publisher + '\'' +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                ", year=" + year +
+                ", publisher='" + publisher + '\'' +
                 ", userId=" + userId +
                 '}';
     }

@@ -40,5 +40,10 @@ public class UserDAOImpl implements UserDAO{
         return theQuery.getResultList();
     }
 
+    @Override
+    @Transactional
+    public void delete(User theUser) {
+        entityManager.remove(entityManager.contains(theUser) ? theUser : entityManager.merge(theUser));
+    }
 
 }

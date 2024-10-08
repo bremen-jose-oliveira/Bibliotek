@@ -5,13 +5,8 @@ import com.Bibliotek.Personal.entity.Book;
 import java.util.List;
 
 public interface BookDAO {
-
         void save(Book theBook);
         Book findById(Integer id);
-
         List<Book> findAll();
-
-
-
-
+        void delete(Book theBook); // New method for deleting a book
 }

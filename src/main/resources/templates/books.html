@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Books</title>
+    <!-- Tailwind CSS via CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- Tailwind CSS Local File -->
+    <!-- <link href="/css/style.css" rel="stylesheet"> -->
+</head>
+<body class="bg-gray-100">
+
+<div class="container mx-auto px-4">
+    <h1 class="text-2xl font-bold my-4">Books</h1>
+
+    <table class="min-w-full bg-white">
+        <thead>
+        <tr>
+            <th class="py-2 px-4 border-b">ID</th>
+            <th class="py-2 px-4 border-b">Title</th>
+            <th class="py-2 px-4 border-b">Author</th>
+            <th class="py-2 px-4 border-b">Year</th>
+            <th class="py-2 px-4 border-b">Publisher</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="book : ${books}">
+            <td class="py-2 px-4 border-b" th:text="${book.id}"></td>
+            <td class="py-2 px-4 border-b" th:text="${book.title}"></td>
+            <td class="py-2 px-4 border-b" th:text="${book.author}"></td>
+            <td class="py-2 px-4 border-b" th:text="${book.year}"></td>
+            <td class="py-2 px-4 border-b" th:text="${book.publisher}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
