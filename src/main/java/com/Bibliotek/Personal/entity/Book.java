@@ -11,6 +11,9 @@ public class Book {
     @Column(name = "id")
     private int id;
 
+    @Column(name = "cover")
+    private  String cover;
+
     @Column(name = "title")  // Use lowercase to match standard naming conventions
     private String title;
 
@@ -26,12 +29,15 @@ public class Book {
     @Column(name = "user_id")
     private int userId;
 
+
+
     // Default constructor
     public Book() {
     }
 
     // Constructor with parameters
-    public Book(String title, String author, int year, String publisher, int userId) {
+    public Book(String cover,String title, String author, int year, String publisher, int userId) {
+        this.cover = cover;
         this.title = title;
         this.author = author;
         this.year = year;
@@ -46,6 +52,14 @@ public class Book {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getCover() {
+        return cover;
+    }
+
+    public void setCover(String cover) {
+        this.cover = cover;
     }
 
     public String getTitle() {
