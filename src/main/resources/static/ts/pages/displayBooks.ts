@@ -1,4 +1,4 @@
-// Define the Book interface
+// displayBooks.ts
 interface Book {
     id: number;
     cover: string | null;
@@ -43,11 +43,13 @@ async function displayBooks(books: Book[]): Promise<void> { // Specify type for 
             bookCard.className = 'bg-white p-4 rounded-lg shadow-md';
 
             bookCard.innerHTML = `
+            <div>
                 <img src="${coverImageUrl || 'https://via.placeholder.com/150'}" alt="Cover of ${book.title}" class="w-full h-48 object-cover mb-4 rounded-md">
                 <h2 class="text-xl font-semibold">${book.title}</h2>
                 <p class="text-gray-600">Author: ${book.author}</p>
                 <p class="text-gray-600">Year: ${book.year}</p>
                 <p class="text-gray-600">Publisher: ${book.publisher}</p>
+                   </div>
             `;
 
             booksList.appendChild(bookCard);

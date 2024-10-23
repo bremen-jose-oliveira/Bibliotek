@@ -8,5 +8,5 @@ public interface BookDAO {
         void save(Book theBook);
         Book findById(Integer id);
         List<Book> findAll();
-        void delete(Book theBook); // New method for deleting a book
+        void delete(Book theBook);
 }

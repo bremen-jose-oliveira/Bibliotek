@@ -4,8 +4,10 @@ import com.Bibliotek.Personal.dao.BookDAO;
 import com.Bibliotek.Personal.dao.UserDAO;
 import com.Bibliotek.Personal.entity.Book;
 import com.Bibliotek.Personal.entity.User;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.cache.NonUniqueCacheException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
@@ -22,10 +24,12 @@ public class BibliotekApplication {
 		SpringApplication.run(BibliotekApplication.class, args);
 	}
 
-/*
 	@Bean
 	public CommandLineRunner CommandLineRunner(UserDAO userDAO, BookDAO bookDAO){
+
+
 		return runnner ->{
+
 		Stream.of("John", "Julie", "Jennifer", "Helen", "Rachel").forEach(username -> {
 
 				String email = generateRandomEmail(username);
@@ -40,16 +44,16 @@ public class BibliotekApplication {
 
 			userDAO.findAll().forEach(System.out::println);
 			Stream.of(
-					new Book("The Good Daughter", "Karin Slaughter", 2017, "William Morrow", 1),
-					new Book("Pretty Girls", "Karin Slaughter", 2015, "William Morrow", 1),
-					new Book("Cop Town", "Karin Slaughter", 2014, "Delacorte Press", 1),
-					new Book("Blindsighted", "Karin Slaughter", 2001, "William Morrow", 1),
-					new Book("The Shining", "Stephen King", 1977, "Doubleday", 1),
-					new Book("It", "Stephen King", 1986, "Viking Press", 1),
-					new Book("Misery", "Stephen King", 1987, "Viking Press", 1),
-					new Book("The Stand", "Stephen King", 1978, "Doubleday", 1),
-					new Book("The Other Child", "Charlotte Link", 2008, "Orion Publishing Group", 1),
-					new Book("The Watcher", "Charlotte Link", 2007, "Orion Publishing Group", 1)
+					new Book(null,"The Good Daughter", "Karin Slaughter", 2017, "William Morrow", 1),
+					new Book(null,"Pretty Girls", "Karin Slaughter", 2015, "William Morrow", 1),
+					new Book(null,"Cop Town", "Karin Slaughter", 2014, "Delacorte Press", 1),
+					new Book(null,"Blindsighted", "Karin Slaughter", 2001, "William Morrow", 1),
+					new Book(null,"The Shining", "Stephen King", 1977, "Doubleday", 1),
+					new Book(null,"It", "Stephen King", 1986, "Viking Press", 1),
+					new Book(null,"Misery", "Stephen King", 1987, "Viking Press", 1),
+					new Book(null,"The Stand", "Stephen King", 1978, "Doubleday", 1),
+					new Book(null,"The Other Child", "Charlotte Link", 2008, "Orion Publishing Group", 1),
+					new Book(null,"The Watcher", "Charlotte Link", 2007, "Orion Publishing Group", 1)
 			).forEach(book -> bookDAO.save(book));
 
 
@@ -83,7 +87,7 @@ public class BibliotekApplication {
 	private void createBook(BookDAO bookDAO){
 		System.out.println("Add a new Book");
 
-		Book testBook = new Book( "test2", "test2", 1923,"bla2331",1);
+		Book testBook = new Book(null, "test2", "test2", 1923,"bla2331",1);
 
 
 		System.out.println("saving the  new User");
@@ -130,6 +134,6 @@ public class BibliotekApplication {
 		User testId = userDAO.findById(userId);
 		System.out.println("found the user: "+ testId);
 	};
-*/
+
 }
 
