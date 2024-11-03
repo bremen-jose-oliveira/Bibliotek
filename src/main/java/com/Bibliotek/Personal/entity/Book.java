@@ -1,5 +1,6 @@
 package com.Bibliotek.Personal.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -26,26 +27,24 @@ public class Book {
     @Column(name = "publisher")
     private String publisher;
 
-    @Column(name = "user_id")
-    private int userId;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
 
-
-    // Default constructor
     public Book() {
     }
 
-    // Constructor with parameters
-    public Book(String cover,String title, String author, int year, String publisher, int userId) {
+    public Book(String cover, String title, String author, int year, String publisher, User user) {
         this.cover = cover;
         this.title = title;
         this.author = author;
         this.year = year;
         this.publisher = publisher;
-        this.userId = userId;
+        this.user = user;
     }
 
-    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -94,23 +93,11 @@ public class Book {
         this.publisher = publisher;
     }
 
-    public int getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    @Override
-    public String toString() {
-        return "Book{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", author='" + author + '\'' +
-                ", year=" + year +
-                ", publisher='" + publisher + '\'' +
-                ", userId=" + userId +
-                '}';
+    public void setUser(User user) {
+        this.user = user;
     }
 }

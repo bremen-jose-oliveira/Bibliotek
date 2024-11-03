@@ -1,4 +1,4 @@
-package com.Bibliotek.Personal.dao;
+package com.Bibliotek.Personal.dao.Book;
 
 import com.Bibliotek.Personal.entity.Book;
 import com.Bibliotek.Personal.entity.User;
@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -45,6 +46,15 @@ public class BookDAOImpl implements BookDAO{
     @Transactional
     public void delete(Book theBook) {
         entityManager.remove(entityManager.contains(theBook) ? theBook : entityManager.merge(theBook));
+    }
+
+    @Override
+    public List<Book> findByUser(User currentUser) {
+        TypedQuery<Book> theQuery = entityManager.createQuery(
+                "SELECT b FROM Book b WHERE b.user = :user", Book.class
+        );
+        theQuery.setParameter("user", currentUser);
+        return theQuery.getResultList();
     }
 
 }

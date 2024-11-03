@@ -1,4 +1,4 @@
-package com.Bibliotek.Personal.dao;
+package com.Bibliotek.Personal.dao.Review;
 
 import com.Bibliotek.Personal.entity.Review;
 import jakarta.persistence.EntityManager;

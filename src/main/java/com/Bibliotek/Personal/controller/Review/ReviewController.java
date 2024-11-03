@@ -1,6 +1,6 @@
-package com.Bibliotek.Personal.controller;
+package com.Bibliotek.Personal.controller.Review;
 
-import com.Bibliotek.Personal.dao.ReviewDAO;
+import com.Bibliotek.Personal.dao.Review.ReviewDAO;
 import com.Bibliotek.Personal.entity.Review;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
+@CrossOrigin(origins = "http://localhost:8081")
 @RestController
 @RequestMapping("/api/reviews") // Base URL for review-related requests
 public class ReviewController {

@@ -1,4 +1,4 @@
-package com.Bibliotek.Personal.dao;
+package com.Bibliotek.Personal.dao.User;
 
 import com.Bibliotek.Personal.entity.User;
 import jakarta.persistence.EntityManager;
@@ -26,6 +26,14 @@ public class UserDAOImpl implements UserDAO{
         entityManager.persist(theUser);
 
     }
+    @Transactional
+    @Override
+    public User findByUsername(String username) {
+        TypedQuery<User> query = entityManager.createQuery("FROM User u WHERE u.username = :username", User.class);
+        query.setParameter("username", username);
+        return query.getResultStream().findFirst().orElse(null);
+    }
+
 
     @Override
     public User findById(Integer id) {

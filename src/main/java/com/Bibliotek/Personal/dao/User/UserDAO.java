@@ -1,4 +1,4 @@
-package com.Bibliotek.Personal.dao;
+package com.Bibliotek.Personal.dao.User;
 
 import com.Bibliotek.Personal.entity.User;
 
@@ -9,4 +9,6 @@ public interface UserDAO {
     User findById(Integer id);
     List<User> findAll();
     void delete(User theUser); // New method for deleting a user
+
+    User findByUsername(String username);
 }

@@ -1,25 +1,34 @@
-package com.Bibliotek.Personal.controller;
+package com.Bibliotek.Personal.controller.Book;
 
 import com.Bibliotek.Personal.ApiResponse.ApiResponse;
-import com.Bibliotek.Personal.dao.BookDAO;
+import com.Bibliotek.Personal.dao.Book.BookDAO;
+import com.Bibliotek.Personal.dao.User.UserDAO;
 import com.Bibliotek.Personal.entity.Book;
+import com.Bibliotek.Personal.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import java.util.List;
-@CrossOrigin(origins = "http://localhost:8081")
+
+
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/books")
 public class BookController {
 
     private final BookDAO bookDAO;
+    private final UserDAO userDAO;
 
     @Autowired
-    public BookController(BookDAO bookDAO) {
+    public BookController(BookDAO bookDAO, UserDAO userDAO) {
         this.bookDAO = bookDAO;
+        this.userDAO = userDAO;
     }
 
     @GetMapping
@@ -35,7 +44,18 @@ public class BookController {
 
     @PostMapping // Create a new book
     public ResponseEntity<Book> createBook(@RequestBody Book book) {
+
+        // Get the currently logged-in user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        User currentUser = userDAO.findByUsername(currentUsername);
+        book.setUser(currentUser);
+
+
+
         bookDAO.save(book);
+
         return new ResponseEntity<>(book, HttpStatus.CREATED);
     }
 
@@ -63,4 +83,25 @@ public class BookController {
         // Return a JSON response with a message indicating successful deletion
         return new ResponseEntity<>(new ApiResponse("Book deleted successfully"), HttpStatus.OK);
     }
+
+
+    @GetMapping("/my")
+    public ResponseEntity<List<Book>> getBooksForCurrentUser() {
+
+        // Retrieve the current logged-in user’s username
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+
+        User currentUser = userDAO.findByUsername(username);
+        if (currentUser == null) {
+            throw new UsernameNotFoundException("User not found with username: " + username);
+        }
+
+        // Find books associated with this user
+        List<Book> userBooks = bookDAO.findByUser(currentUser);
+
+        return ResponseEntity.ok(userBooks);
+    }
+
 }
