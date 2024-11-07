@@ -43,7 +43,7 @@ public class SecurityConfig {
             CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(Arrays.asList("http://localhost:8081")); // Update with your frontend URL
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE","OPTION", "HEAD"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE","OPTIONS", "HEAD"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 

@@ -24,7 +24,7 @@ public class WebConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         config.setAllowedOrigins(Arrays.asList("http://localhost:8081")); // Update with your frontend URL
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE","OPTION", "HEAD"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE","OPTIONS", "HEAD"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
 
         config.setAllowCredentials(true); // Allow cookies for cross-origin requests

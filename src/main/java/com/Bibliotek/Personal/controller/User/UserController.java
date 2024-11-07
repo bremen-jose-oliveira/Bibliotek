@@ -46,24 +46,6 @@ public class UserController {
         return (user != null) ? new ResponseEntity<>(user, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<ApiResponse> createUser(@RequestBody User user) {
-        // Check if username is already taken
-        User existingUser = userDAO.findByUsername(user.getUsername());
-        if (existingUser != null) {
-            return new ResponseEntity<>(new ApiResponse("User already exists"), HttpStatus.BAD_REQUEST);
-        }
-
-        // Hash the password
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String hashedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(hashedPassword);
-
-        // Save the new user
-        userDAO.save(user);
-        return new ResponseEntity<>(new ApiResponse("User created successfully"), HttpStatus.CREATED);
-    }
-
     @PutMapping("/{id}") // Update an existing user
     public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody User user) {
         User existingUser = userDAO.findById(id);
@@ -84,6 +66,28 @@ public class UserController {
         userDAO.delete(existingUser); // Add a delete method in UserDAO
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<ApiResponse> createUser(@RequestBody User user) {
+        // Check if username is already taken
+        User existingUser = userDAO.findByUsername(user.getUsername());
+
+        System.out.println(user.getPassword());
+
+        if (existingUser != null) {
+            return new ResponseEntity<>(new ApiResponse("User already exists"), HttpStatus.BAD_REQUEST);
+        }
+
+        // Hash the password
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String hashedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashedPassword);
+
+        // Save the new user
+        userDAO.save(user);
+        return new ResponseEntity<>(new ApiResponse("User created successfully"), HttpStatus.CREATED);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
 
