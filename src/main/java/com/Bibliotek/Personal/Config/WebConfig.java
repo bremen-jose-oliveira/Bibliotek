@@ -1,5 +1,6 @@
 package com.Bibliotek.Personal.Config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,6 +17,8 @@ import java.util.Arrays;
 @Configuration
 public class WebConfig {
 
+    @Value("${FrontEnd.url}")
+    private String FrontEndUrl;
     @Bean
     public CorsFilter corsFilter() {
 
@@ -23,7 +26,7 @@ public class WebConfig {
         CorsConfiguration config = new CorsConfiguration();
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
-        config.setAllowedOrigins(Arrays.asList("http://localhost:8081")); // Update with your frontend URL
+        config.setAllowedOrigins(Arrays.asList(FrontEndUrl));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE","OPTIONS", "HEAD"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
 

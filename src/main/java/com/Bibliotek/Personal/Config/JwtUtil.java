@@ -19,6 +19,8 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
+
+
     private static final String SECRET_KEY = "MYTOKENyourBase64EncodedSecretKey12345QWERTY"; // Use a strong Base64-encoded key
 
 

@@ -2,6 +2,7 @@ package com.Bibliotek.Personal.Config;
 
 
 import com.Bibliotek.Personal.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -22,6 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
+import java.util.StringTokenizer;
 
 import static org.springframework.security.config.Customizer.withDefaults; // Import withDefaults here
 @Configuration
@@ -36,13 +38,17 @@ public class SecurityConfig {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter; // Inject the JWT filter
     }
 
+    @Value("${FrontEnd.url}")
+    private String FrontEndUrl;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource()  {
 
 
+
             CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(Arrays.asList("http://localhost:8081")); // Update with your frontend URL
+        config.setAllowedOrigins(Arrays.asList(FrontEndUrl));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE","OPTIONS", "HEAD"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
