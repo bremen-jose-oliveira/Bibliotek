@@ -2,7 +2,7 @@ package com.Bibliotek.Personal.controller.User;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "*")
 public class LoginRequest {
     private String username;
     private String password;

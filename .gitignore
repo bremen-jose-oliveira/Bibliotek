@@ -33,8 +33,4 @@ build/
 ### VS Code ###
 .vscode/
 node_modules
-node_modules
-node_modules
-node_modules
-node_modules
-.env
+src/main/resources/AuthKey_YV7L248U6W.p8

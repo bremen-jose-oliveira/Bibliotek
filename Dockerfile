@@ -1,36 +1,28 @@
+# Use an Official Maven Image to build the Spring Boot App
+FROM maven:3.9.8-amazoncorretto-21 AS build
 
-#use and Official Maven Imaga to build the Spring  Boot App
-FROM maven:3.9.8-amazoncorretto-21
-
-#Set the working Directory
-
+# Set the working directory
 WORKDIR /app
 
-#copy the pom and install dependency
-
+# Copy the pom and install dependencies
 COPY pom.xml .
-RUN mvn dependency:go-OFFLINE
+RUN mvn dependency:go-offline
 
-
-#Copy the Source code and  build the aplication
+# Copy the source code and build the application
 COPY src ./src
-RUN mvn clean  package -DskipTests
+RUN mvn clean package -DskipTests
 
-#Use and Official Open JDK  image to run  the aplication
-
+# Use an Official OpenJDK image to run the application
 FROM openjdk:21
 
-#Set the working Directory
+# Set the working directory
 WORKDIR /app
 
-#Copy the Build jar file  from the build stage
-
+# Copy the built JAR file from the build stage
 COPY --from=build /app/target/bibliotek-0.0.1-SNAPSHOT.jar .
 
-#Expose the Port
-
+# Expose the port
 EXPOSE 8080
 
-#Epeciafy  the command  to run the aplication
-
-ENTRYPOINT ["java", "-jar",".jar", "app/bibliotek-0.0.1-SNAPSHOT.jar"]
+# Specify the command to run the application
+ENTRYPOINT ["java", "-jar", "bibliotek-0.0.1-SNAPSHOT.jar"]
