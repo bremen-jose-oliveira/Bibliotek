@@ -45,6 +45,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         // Extract user information from OAuth2 provider (Google, Facebook, etc.)
        // String username = oAuth2User.getAttribute("name"); // Adjust attribute based on your OAuth provider
         String username = oAuth2User.getAttribute("sub");
+        System.out.println("Apple OAuth2 User: " + oAuth2User.getAttributes());
 
         System.out.println("<---oAuth2User ------->" + oAuth2User );
 
