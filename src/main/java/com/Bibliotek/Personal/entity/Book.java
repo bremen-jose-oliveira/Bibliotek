@@ -15,7 +15,7 @@ public class Book {
     @Column(name = "cover")
     private  String cover;
 
-    @Column(name = "title")  // Use lowercase to match standard naming conventions
+    @Column(name = "title")
     private String title;
 
     @Column(name = "author")
