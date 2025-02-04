@@ -7,26 +7,22 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reviews")
-public class Review {
+@Table(name = "friendships")
+public class Friendship {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
-
-    @Column(name = "rating")
-    private String rating;
-
-    @Column(name = "comment")
-    private String comment;
+    private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "book_id", nullable = false)
-    private Book book;
+    @JoinColumn(name = "friend_id")
+    private User friend;
+
+    @Enumerated(EnumType.STRING)
+    private FriendshipStatus status;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -35,41 +31,32 @@ public class Review {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    // Getters and setters
 
-    public Review() {
+
+    public enum FriendshipStatus {
+        PENDING,
+        ACCEPTED,
+        BLOCKED
     }
 
-    public Review(String rating, String comment, User user, Book book, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.rating = rating;
-        this.comment = comment;
+    public Friendship() {
+    }
+
+    public Friendship(User user, User friend, FriendshipStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.user = user;
-        this.book = book;
+        this.friend = friend;
+        this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getRating() {
-        return rating;
-    }
-
-    public void setRating(String rating) {
-        this.rating = rating;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     public User getUser() {
@@ -80,12 +67,20 @@ public class Review {
         this.user = user;
     }
 
-    public Book getBook() {
-        return book;
+    public User getFriend() {
+        return friend;
     }
 
-    public void setBook(Book book) {
-        this.book = book;
+    public void setFriend(User friend) {
+        this.friend = friend;
+    }
+
+    public FriendshipStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(FriendshipStatus status) {
+        this.status = status;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -104,5 +99,4 @@ public class Review {
         this.updatedAt = updatedAt;
     }
 }
-
 

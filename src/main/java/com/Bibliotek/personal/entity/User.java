@@ -2,27 +2,50 @@ package com.bibliotek.personal.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private  int id;
-    @Column(name = "username")
-    private  String username;
-    @Column(name = "email")
-    private  String email;
+    private int id;
+
+    @Column(name = "username", nullable = true ,unique = true)
+    private String username;
+
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Column(name = "password")
-    private  String password;
+    @Column(name = "password", nullable = false)
+    private String password;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<Book> books = new ArrayList<>();
+
+    @OneToMany(mappedBy = "borrower", cascade = CascadeType.ALL)
+    private List<Exchange> borrowedBooks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Friendship> friendships = new ArrayList<>();
 
 
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false, columnDefinition = "TEXT")
+    private LocalDateTime createdAt;
 
-    public  User(){
+    @UpdateTimestamp
+    @Column(name = "updated_at", columnDefinition = "TEXT")
+    private LocalDateTime updatedAt;
 
-    }
+
+    public User() {}
 
     public User(String username, String email, String password) {
         this.username = username;
@@ -30,12 +53,23 @@ public class User {
         this.password = password;
     }
 
-    public String getUsername() {
-        return username;
+    public User(String username, String email, String password, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
-    public void setUsername(String username) {
+    public User(String username, String email, String password, List<Book> books, List<Exchange> borrowedBooks, List<Friendship> friendships, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.username = username;
+        this.email = email;
+        this.password = password;
+        this.books = books;
+        this.borrowedBooks = borrowedBooks;
+        this.friendships = friendships;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public int getId() {
@@ -44,6 +78,14 @@ public class User {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
@@ -62,13 +104,44 @@ public class User {
         this.password = password;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                '}';
+    public List<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
+    }
+
+    public List<Exchange> getBorrowedBooks() {
+        return borrowedBooks;
+    }
+
+    public void setBorrowedBooks(List<Exchange> borrowedBooks) {
+        this.borrowedBooks = borrowedBooks;
+    }
+
+    public List<Friendship> getFriendships() {
+        return friendships;
+    }
+
+    public void setFriendships(List<Friendship> friendships) {
+        this.friendships = friendships;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
+

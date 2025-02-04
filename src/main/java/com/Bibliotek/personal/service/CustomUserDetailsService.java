@@ -1,6 +1,6 @@
 package com.bibliotek.personal.service;
 
-import com.bibliotek.personal.dao.User.UserDAO;
+
 import com.bibliotek.personal.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,25 +16,24 @@ import java.util.Collections;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private final UserDAO userDAO;
+    private final UserService userService;
 
     @Autowired
-    public CustomUserDetailsService(UserDAO userDAO) {
-        this.userDAO = userDAO;
+    public CustomUserDetailsService(UserService userService) {
+        this.userService = userService;
     }
 
     // This method handles traditional username/password login
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userDAO.findByUsername(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userService.findByEmail(email);
         if (user == null) {
-            System.out.println("User not found: " + username); // Log user not found
-            throw new UsernameNotFoundException("User not found with username: " + username);
+            System.out.println("email not found: " + email); // Log user not found
+            throw new UsernameNotFoundException("User not found with email: " + email);
         }
         System.out.println("User found: " + user.getUsername()); // Log user found
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
+                user.getEmail(),
                 user.getPassword(),
                 Collections.emptyList() // No roles for now
         );
@@ -53,7 +52,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         String email = oAuth2User.getAttribute("email");
 
         // Check if user already exists in the database or create a new one
-        User user = userDAO.findByEmail(email);
+        User user = userService.findByEmail(email);
         if (user == null) {
             user = new User();
             user.setUsername(username);
@@ -66,7 +65,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String hashedPassword = passwordEncoder.encode(user.getPassword());
             user.setPassword(hashedPassword);
-            userDAO.save(user); // Save the new user to the database
+            userService.save(user); // Save the new user to the database
         }
 
 

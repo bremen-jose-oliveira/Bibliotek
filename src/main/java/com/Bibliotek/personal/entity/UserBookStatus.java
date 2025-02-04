@@ -7,18 +7,13 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reviews")
-public class Review {
+@Table(name = "user_book_status")
+public class UserBookStatus {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-
-    @Column(name = "rating")
-    private String rating;
-
-    @Column(name = "comment")
-    private String comment;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -28,6 +23,10 @@ public class Review {
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private Book.BookStatus status = Book.BookStatus.NOT_READ;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -36,14 +35,13 @@ public class Review {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Review() {
+    public UserBookStatus() {
     }
 
-    public Review(String rating, String comment, User user, Book book, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.rating = rating;
-        this.comment = comment;
+    public UserBookStatus(User user, Book book, Book.BookStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.user = user;
         this.book = book;
+        this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -54,22 +52,6 @@ public class Review {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getRating() {
-        return rating;
-    }
-
-    public void setRating(String rating) {
-        this.rating = rating;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     public User getUser() {
@@ -88,6 +70,14 @@ public class Review {
         this.book = book;
     }
 
+    public Book.BookStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(Book.BookStatus status) {
+        this.status = status;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -104,5 +94,3 @@ public class Review {
         this.updatedAt = updatedAt;
     }
 }
-
-
