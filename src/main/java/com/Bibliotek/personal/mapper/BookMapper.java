@@ -15,7 +15,7 @@ public class BookMapper {
         bookDTO.setAuthor(book.getAuthor());
         bookDTO.setYear(book.getYear());
         bookDTO.setPublisher(book.getPublisher());
-        bookDTO.setOwner (book.getOwner().getEmail());
+        bookDTO.setOwner (book.getOwner());
         bookDTO.setStatus(book.getStatus());
         bookDTO.setCreatedAt(book.getCreatedAt());
         bookDTO.setUpdatedAt(book.getUpdatedAt());
