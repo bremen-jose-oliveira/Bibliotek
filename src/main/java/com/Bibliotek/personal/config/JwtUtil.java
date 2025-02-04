@@ -27,12 +27,12 @@ public class JwtUtil {
     }
 
 
-    public String generateToken(String username) {
+    public String generateToken(String email) {
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder()
                 .claims()
                 .add(claims)
-                .subject(username)
+                .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() +  1000 * 60 * 60)) // Adjust expiration time
                 .and()
@@ -40,9 +40,9 @@ public class JwtUtil {
                 .compact();
     }
 
-    public Boolean validateToken(String token, String username) {
+    public Boolean validateToken(String token, String email) {
         final String extractedUsername = extractUsername(token);
-        return (extractedUsername.equals(username) && !isTokenExpired(token));
+        return (extractedUsername.equals(email) && !isTokenExpired(token));
     }
 
     public String extractUsername(String token) {
