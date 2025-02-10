@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class Friendship {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -51,11 +51,11 @@ public class Friendship {
         this.updatedAt = updatedAt;
     }
 
-    public Long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 

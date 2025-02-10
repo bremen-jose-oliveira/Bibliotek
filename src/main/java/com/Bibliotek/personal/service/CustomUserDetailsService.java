@@ -26,6 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     // This method handles traditional username/password login
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
         User user = userService.findByEmail(email);
         if (user == null) {
             System.out.println("email not found: " + email); // Log user not found

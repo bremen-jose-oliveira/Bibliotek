@@ -1,6 +1,7 @@
 package com.bibliotek.personal.dto;
 
 import com.bibliotek.personal.entity.Book.BookStatus;
+import com.bibliotek.personal.entity.User;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +13,7 @@ public class BookDTO {
     private String author;
     private int year;
     private String publisher;
-    private String owner;
+    private User owner;
     private BookStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -67,13 +68,14 @@ public class BookDTO {
         this.publisher = publisher;
     }
 
-    public String getOwner() {
+    public User getOwner() {
         return owner;
     }
 
-    public void setOwner(String owner) {
+    public void setOwner(User owner) {
         this.owner = owner;
     }
+
     public BookStatus getStatus() {
         return status;
     }

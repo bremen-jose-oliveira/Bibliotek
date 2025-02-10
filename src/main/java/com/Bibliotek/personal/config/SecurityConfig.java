@@ -78,8 +78,10 @@ public class SecurityConfig {
                         .requestMatchers( "/oauth2/**").permitAll()
                         .requestMatchers("/api/users/create").permitAll()
                         .requestMatchers("/api/users/oauth2-login").permitAll()
-                        .requestMatchers("/oauth2/authorization/google").permitAll()
-                        .requestMatchers("/oauth2/authorization/apple").permitAll()
+                        .requestMatchers("/oauth2/authorization/**").permitAll()
+                        .requestMatchers("/oauth2/authorization/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+
 
 
                         .anyRequest().authenticated() // Protect all other endpoints
@@ -100,7 +102,7 @@ public class SecurityConfig {
                             String username = oAuth2User.getAttribute("name");
 
                             // Generate the JWT token
-                            String token = jwtUtil.generateToken(username);
+                            String token = jwtUtil.generateToken(email);
                             System.out.println("Login successful for user: " + username + " with token: " + token);
 
                             // Redirect to frontend with the token as a query parameter
