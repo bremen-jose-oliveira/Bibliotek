@@ -32,6 +32,9 @@ public class UserService {
     @Value("${FrontEnd.url}")
     private String FrontEndUrl;
 
+    @Value("${Smtp.email}")
+    private String smtpEmail;
+
     @Autowired
     private PasswordResetTokenRepository tokenRepository;
 
@@ -139,7 +142,7 @@ public class UserService {
         tokenRepository.save(resetToken);
 
 
-        String resetLink = "http://localhost:8081/reset-password?token=" + token;
+        String resetLink = FrontEndUrl+"/reset-password?token=" + token;
 
         String subject = "Reset Your Password";
         String body = "Click here to reset your password: " + resetLink;
@@ -150,12 +153,12 @@ public class UserService {
     private boolean sendEmail(String to, String subject, String body) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("bilbo.app.test@gmail.com"); // Ensure this matches your Brevo settings
+            message.setFrom(smtpEmail);
             message.setTo(to);
             message.setSubject(subject);
             message.setText(body);
 
-            mailSender.send(message); // Send email using JavaMailSender
+            mailSender.send(message);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
