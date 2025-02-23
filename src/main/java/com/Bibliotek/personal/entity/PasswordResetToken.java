@@ -61,5 +61,5 @@ public class PasswordResetToken {
     public void setExpiryDate(LocalDateTime expiryDate) {
         this.expiryDate = expiryDate;
     }
-    // Getters and Setters
+
 }

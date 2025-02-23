@@ -1,10 +1,13 @@
 package com.bibliotek.personal.service;
 
-import com.bibliotek.personal.dto.UserDTO;
-import com.bibliotek.personal.dto.UserRegistrationDTO;
+import com.bibliotek.personal.dto.FriendshipDTO;
+import com.bibliotek.personal.dto.user.UserDTO;
+import com.bibliotek.personal.dto.user.UserRegistrationDTO;
+import com.bibliotek.personal.entity.Friendship;
 import com.bibliotek.personal.entity.PasswordResetToken;
 import com.bibliotek.personal.entity.User;
 import com.bibliotek.personal.mapper.UserMapper;
+import com.bibliotek.personal.repository.FriendshipRepository;
 import com.bibliotek.personal.repository.PasswordResetTokenRepository;
 import com.bibliotek.personal.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,20 +17,18 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     private static final String MAILGUN_DOMAIN = "sandboxxxxx.mailgun.org";
     private static final String API_KEY = "your-mailgun-api-key";
     private final UserRepository userRepository;
+
+
 
     @Value("${FrontEnd.url}")
     private String FrontEndUrl;
@@ -44,6 +45,7 @@ public class UserService {
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+
     }
 
     public List<UserDTO> getAllUsers() {

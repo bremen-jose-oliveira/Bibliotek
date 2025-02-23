@@ -23,7 +23,6 @@ public class BookController {
     public BookController(BookService bookService) {
         this.bookService = bookService;
     }
-
     @GetMapping
     public ResponseEntity<List<BookDTO>> getAllBooks() {
         List<BookDTO> books = bookService.getAllBooks();
@@ -36,6 +35,8 @@ public class BookController {
         return (book != null) ? new ResponseEntity<>(book, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+
+
     @PostMapping // Create a new book
     public ResponseEntity<BookDTO> createBook(@RequestBody BookDTO bookDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -45,11 +46,21 @@ public class BookController {
         return new ResponseEntity<>(createdBook, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}") // Update an existing book
+    @PutMapping("/{id}")
     public ResponseEntity<BookDTO> updateBook(@PathVariable Integer id, @RequestBody BookDTO bookDTO) {
-        BookDTO updatedBook = bookService.updateBook(id, bookDTO);
-        return (updatedBook != null) ? new ResponseEntity<>(updatedBook, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        BookDTO updatedBook = bookService.updateBook(id, bookDTO, currentUsername);
+
+        if (updatedBook == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(updatedBook, HttpStatus.OK);
     }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteBook(@PathVariable Integer id) {
@@ -65,7 +76,24 @@ public class BookController {
     public ResponseEntity<List<BookDTO>> getBooksForCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        List<BookDTO> userBooks = bookService.getBooksByUser(username);
+        List<BookDTO> userBooks = bookService.getBooksByOwner(username);
         return new ResponseEntity<>(userBooks, HttpStatus.OK);
     }
+    // New Route 1: Get books of the owner with reading status
+    @GetMapping("/my/with-status")
+    public ResponseEntity<List<BookDTO>> getBooksForCurrentUserWithStatus() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        List<BookDTO> userBooks = bookService.getBooksByOwnerWithStatus(username);
+        return new ResponseEntity<>(userBooks, HttpStatus.OK);
+    }
+
+    // New Route 2: Get full details of a book by ID
+    @GetMapping("/details/{id}")
+    public ResponseEntity<BookDTO> getBookDetails(@PathVariable Integer id) {
+        BookDTO bookDetails = bookService.getFullBookDetails(id);
+        return (bookDetails != null) ? new ResponseEntity<>(bookDetails, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+
 }

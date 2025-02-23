@@ -5,109 +5,53 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 @Entity
-@Table(name = "books")
+@Table(name = "user_books")
 public class Book {
-
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "id")
-    private int id;
-
-    @Column(name = "cover")
-    private String cover;
-
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "author")
-    private String author;
-
-    @Column(name = "year")
-    private int year;
-
-    @Column(name = "publisher")
-    private String publisher;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    @ManyToOne
+    @JoinColumn(name = "book_details_id", nullable = false)
+    private BookDetails bookDetails;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id")
-    @JsonIgnore
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
-    private List<Review> reviews = new ArrayList<>();
+    @OneToMany(mappedBy = "book", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Review> reviews;
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
-    private List<Exchange> exchanges = new ArrayList<>();
+    @OneToMany(mappedBy = "book", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Exchange> exchanges;
 
+    // ✅ Added Reading Status (Enum)
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private BookStatus status = BookStatus.NOT_READ;
+    private UserBookStatus.BookStatus readingStatus;
+
+    // ✅ Added Exchange Status (Enum)
+    @Enumerated(EnumType.STRING)
+    private Exchange.ExchangeStatus exchangeStatus;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public enum BookStatus {
-        NOT_READ,
-        READING,
-        READ
-    }
-    public Book() {
+    public Book() {}
+    public boolean isOwnedBy(User user) {
+        return Objects.equals(this.owner.getId(), user.getId());
     }
 
-    public Book(String cover, String title, String author, int year, String publisher, User owner, BookStatus status) {
-        this.cover = cover;
-        this.title = title;
-        this.author = author;
-        this.year = year;
-        this.publisher = publisher;
+    public Book(BookDetails bookDetails, User owner) {
+        this.bookDetails = bookDetails;
         this.owner = owner;
-        this.status = status != null ? status : BookStatus.NOT_READ;
     }
-
-    public Book(String cover, String title, String author, int year, String publisher, User owner, BookStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.cover = cover;
-        this.title = title;
-        this.author = author;
-        this.year = year;
-        this.publisher = publisher;
-        this.owner = owner;
-        this.status = status != null ? status : BookStatus.NOT_READ;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-    public Book(String cover, String title, String author, int year, String publisher, User owner, List<Review> reviews, List<Exchange> exchanges, BookStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.cover = cover;
-        this.title = title;
-        this.author = author;
-        this.year = year;
-        this.publisher = publisher;
-        this.owner = owner;
-        this.reviews = reviews;
-        this.exchanges = exchanges;
-        this.status = status != null ? status : BookStatus.NOT_READ;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-    @PrePersist
-    public void ensureStatus() {
-        if (this.status == null) {
-            this.status = BookStatus.NOT_READ;
-        }
-    }
-
 
     public int getId() {
         return id;
@@ -117,44 +61,12 @@ public class Book {
         this.id = id;
     }
 
-    public String getCover() {
-        return cover;
+    public BookDetails getBookDetails() {
+        return bookDetails;
     }
 
-    public void setCover(String cover) {
-        this.cover = cover;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public int getYear() {
-        return year;
-    }
-
-    public void setYear(int year) {
-        this.year = year;
-    }
-
-    public String getPublisher() {
-        return publisher;
-    }
-
-    public void setPublisher(String publisher) {
-        this.publisher = publisher;
+    public void setBookDetails(BookDetails bookDetails) {
+        this.bookDetails = bookDetails;
     }
 
     public User getOwner() {
@@ -181,14 +93,6 @@ public class Book {
         this.exchanges = exchanges;
     }
 
-    public BookStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(BookStatus status) {
-        this.status = status;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -203,5 +107,22 @@ public class Book {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    // ✅ Getters & Setters for Reading and Exchange Status
+    public UserBookStatus.BookStatus getReadingStatus() {
+        return readingStatus;
+    }
+
+    public void setReadingStatus(UserBookStatus.BookStatus readingStatus) {
+        this.readingStatus = readingStatus;
+    }
+
+    public Exchange.ExchangeStatus getExchangeStatus() {
+        return exchangeStatus;
+    }
+
+    public void setExchangeStatus(Exchange.ExchangeStatus exchangeStatus) {
+        this.exchangeStatus = exchangeStatus;
     }
 }

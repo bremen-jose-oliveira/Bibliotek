@@ -1,6 +1,6 @@
 package com.bibliotek.personal.mapper;
 
-import com.bibliotek.personal.dto.UserDTO;
+import com.bibliotek.personal.dto.user.UserDTO;
 import com.bibliotek.personal.entity.User;
 
 public class UserMapper {
@@ -9,12 +9,13 @@ public class UserMapper {
         User user = new User();
         user.setEmail(userDTO.getEmail());
 
+
         // Only set username if it's provided
         if (userDTO.getUsername() != null && !userDTO.getUsername().isEmpty()) {
             user.setUsername(userDTO.getUsername());
         }
 
-        // Password is handled in the service layer, so we don't set it here.
+        // Password is handled in the service layer.
         return user;
     }
 

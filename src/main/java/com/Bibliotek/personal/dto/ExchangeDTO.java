@@ -1,43 +1,21 @@
-package com.bibliotek.personal.entity;
+package com.bibliotek.personal.dto;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import com.bibliotek.personal.dto.user.UserDTO;
+import com.bibliotek.personal.entity.Exchange;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "exchanges")
-public class Exchange {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ExchangeDTO {
     private int id;
-
-    @ManyToOne
-    @JoinColumn(name = "book_id", nullable = false)
-    private Book book;
-
-    @ManyToOne
-    @JoinColumn(name = "borrower_id", nullable = false)
-    private User borrower;
-
-    @Enumerated(EnumType.STRING)
-    private ExchangeStatus status;
-
+    private BookDTO book; // BookDTO instead of Book
+    private UserDTO borrower; // UserDTO instead of User
+    private Exchange.ExchangeStatus status;
     private LocalDate exchangeDate;
-
-    @CreationTimestamp
     private LocalDateTime createdAt;
-
-    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    public enum ExchangeStatus {
-        REQUESTED,
-        ACCEPTED,
-        REJECTED,
-        RETURNED
+    public ExchangeDTO() {
     }
 
     public int getId() {
@@ -48,27 +26,27 @@ public class Exchange {
         this.id = id;
     }
 
-    public Book getBook() {
+    public BookDTO getBook() {
         return book;
     }
 
-    public void setBook(Book book) {
+    public void setBook(BookDTO book) {
         this.book = book;
     }
 
-    public User getBorrower() {
+    public UserDTO getBorrower() {
         return borrower;
     }
 
-    public void setBorrower(User borrower) {
+    public void setBorrower(UserDTO borrower) {
         this.borrower = borrower;
     }
 
-    public ExchangeStatus getStatus() {
+    public Exchange.ExchangeStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ExchangeStatus status) {
+    public void setStatus(Exchange.ExchangeStatus status) {
         this.status = status;
     }
 

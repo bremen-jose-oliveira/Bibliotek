@@ -2,37 +2,39 @@ package com.bibliotek.personal.mapper;
 
 import com.bibliotek.personal.dto.BookDTO;
 import com.bibliotek.personal.entity.Book;
+import com.bibliotek.personal.entity.BookDetails;
 import com.bibliotek.personal.entity.User;
 
 public class BookMapper {
 
-    // Convert Book entity to BookDTO
     public static BookDTO toDTO(Book book) {
         BookDTO bookDTO = new BookDTO();
         bookDTO.setId(book.getId());
-        bookDTO.setCover(book.getCover());
-        bookDTO.setTitle(book.getTitle());
-        bookDTO.setAuthor(book.getAuthor());
-        bookDTO.setYear(book.getYear());
-        bookDTO.setPublisher(book.getPublisher());
-        bookDTO.setOwner (book.getOwner());
-        bookDTO.setStatus(book.getStatus());
-        bookDTO.setCreatedAt(book.getCreatedAt());
-        bookDTO.setUpdatedAt(book.getUpdatedAt());
+        bookDTO.setIsbn(book.getBookDetails().getIsbn());
+        bookDTO.setTitle(book.getBookDetails().getTitle());
+        bookDTO.setAuthor(book.getBookDetails().getAuthor());
+        bookDTO.setYear(book.getBookDetails().getYear());
+        bookDTO.setPublisher(book.getBookDetails().getPublisher());
+        bookDTO.setCover(book.getBookDetails().getCover());
+        bookDTO.setOwner(book.getOwner().getEmail());
+
+        // ✅ Ensure `readingStatus` is mapped correctly
+        if (book.getReadingStatus() != null) {
+            bookDTO.setReadingStatus(book.getReadingStatus().name()); // ✅ Convert Enum to String
+        }
+
+        // ✅ Ensure `exchangeStatus` is mapped correctly
+        if (book.getExchangeStatus() != null) {
+            bookDTO.setExchangeStatus(book.getExchangeStatus().name());
+        }
+
         return bookDTO;
     }
 
+
     // Convert BookDTO to Book entity
-    public static Book toEntity(BookDTO bookDTO, User owner) {
-        Book book = new Book();
-        book.setId(bookDTO.getId());
-        book.setCover(bookDTO.getCover());
-        book.setTitle(bookDTO.getTitle());
-        book.setAuthor(bookDTO.getAuthor());
-        book.setYear(bookDTO.getYear());
-        book.setPublisher(bookDTO.getPublisher());
-        book.setOwner(owner);  // Set the associated user as owner
-        book.setStatus(bookDTO.getStatus());
-        return book;
+    public static Book toEntity(User owner, BookDetails bookDetails) {
+        return new Book(bookDetails, owner);
     }
+
 }

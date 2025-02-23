@@ -8,11 +8,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user_book_status")
-public class UserBookStatus {
-
+    public class UserBookStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private int id;
 
     @ManyToOne
@@ -24,26 +22,27 @@ public class UserBookStatus {
     private Book book;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private Book.BookStatus status = Book.BookStatus.NOT_READ;
+    private BookStatus status = BookStatus.NOT_READ;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public UserBookStatus() {
+    public enum BookStatus {
+        NOT_READ,
+        READING,
+        READ
     }
 
-    public UserBookStatus(User user, Book book, Book.BookStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.user = user;
-        this.book = book;
-        this.status = status;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+    @Enumerated(EnumType.STRING)
+    private Visibility visibility = Visibility.FRIENDS_ONLY;
+
+    public enum Visibility {
+        PUBLIC,
+        FRIENDS_ONLY,
+        PRIVATE
     }
 
     public int getId() {
@@ -70,11 +69,11 @@ public class UserBookStatus {
         this.book = book;
     }
 
-    public Book.BookStatus getStatus() {
+    public BookStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Book.BookStatus status) {
+    public void setStatus(BookStatus status) {
         this.status = status;
     }
 
@@ -93,4 +92,14 @@ public class UserBookStatus {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public Visibility getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(Visibility visibility) {
+        this.visibility = visibility;
+    }
+
 }
+

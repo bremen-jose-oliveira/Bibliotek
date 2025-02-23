@@ -7,7 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "friendships")
+@Table(name = "friendships", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "friend_id"}))
 public class Friendship {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,30 +25,18 @@ public class Friendship {
     private FriendshipStatus status;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    // Getters and setters
 
+    public Friendship(User user, User friend, FriendshipStatus pending) {
+    }
 
     public enum FriendshipStatus {
         PENDING,
         ACCEPTED,
         BLOCKED
-    }
-
-    public Friendship() {
-    }
-
-    public Friendship(User user, User friend, FriendshipStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.user = user;
-        this.friend = friend;
-        this.status = status;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 
     public int getId() {

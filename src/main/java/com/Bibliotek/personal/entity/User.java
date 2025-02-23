@@ -27,13 +27,13 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    private List<Book> books = new ArrayList<>();
+    private List<Book> books;
 
     @OneToMany(mappedBy = "borrower", cascade = CascadeType.ALL)
-    private List<Exchange> borrowedBooks = new ArrayList<>();
+    private List<Exchange> borrowedBooks ;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Friendship> friendships = new ArrayList<>();
+    private List<Friendship> friendships;
 
 
     @CreationTimestamp
