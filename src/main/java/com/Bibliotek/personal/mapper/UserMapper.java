@@ -22,6 +22,7 @@ public class UserMapper {
     // Convert User (Entity) to UserDTO
     public static UserDTO toDTO(User user) {
         UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getId());
         userDTO.setEmail(user.getEmail());
 
         // Don't expose password in DTO

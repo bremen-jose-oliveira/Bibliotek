@@ -45,6 +45,15 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDTO>> getAllByUsernameOrEmail(@RequestParam String search) {
+        // Call the service method with the search term
+        List<UserDTO> users = userService.getUsersByEmailOrUsername(search);
+
+        // Return the list of UserDTOs as the response body
+        return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable int id) {
         UserDTO user = userService.getUserById(id);

@@ -25,6 +25,15 @@ public class FriendshipController {
         this.friendshipService = friendshipService;
     }
 
+    @GetMapping("/requests")
+    public ResponseEntity<List<FriendshipDTO>> getIncomingFriendRequests() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        List<FriendshipDTO> requests = friendshipService.getIncomingFriendRequests(currentUsername);
+        return ResponseEntity.ok(requests);
+    }
+
 
     @PostMapping("/request")
     public ResponseEntity<ApiResponse> sendFriendRequest(@RequestBody Map<String, String> request) {
@@ -71,12 +80,22 @@ public class FriendshipController {
             return new ResponseEntity<>(new ApiResponse("Failed to reject friend request", false, 400), HttpStatus.BAD_REQUEST);
         }
     }
-    // Get all approved friends
+
+
     @GetMapping
     public ResponseEntity<List<FriendshipDTO>> getFriendsForCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        List<FriendshipDTO> friends = friendshipService.getFriends(username);
+        List<FriendshipDTO> friends = friendshipService.getFriends();
         return new ResponseEntity<>(friends, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse> deleteFriend(@PathVariable Integer id) {
+        boolean success = friendshipService.removeFriend(id);
+        if (success) {
+            return new ResponseEntity<>(new ApiResponse("Friend removed successfully", true, 200), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new ApiResponse("Friend not found", false, 404), HttpStatus.NOT_FOUND);
+        }
+    }
 }
+

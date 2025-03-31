@@ -1,27 +1,31 @@
 package com.bibliotek.personal.dto;
 
-
-
-
-
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-
-
-import java.time.LocalDateTime;
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FriendshipDTO {
     private int id;
     private String userEmail;
+    private String username;
     private String friendEmail;
-    private String friendshipStatus;  // ✅ Add this field as a String
+    private String friendshipStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // ✅ Constructor
-    public FriendshipDTO(int id, String userEmail, String friendEmail, String friendshipStatus, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public FriendshipDTO(int id, String userEmail, String username, String friendEmail, String friendshipStatus, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.userEmail = userEmail;
+        this.username = username;
+        this.friendEmail = friendEmail;
+        this.friendshipStatus = friendshipStatus;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public FriendshipDTO(int id, String username, String friendEmail, String friendshipStatus, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.username = username;
         this.friendEmail = friendEmail;
         this.friendshipStatus = friendshipStatus;
         this.createdAt = createdAt;
@@ -47,6 +51,14 @@ public class FriendshipDTO {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getUserEmail() {

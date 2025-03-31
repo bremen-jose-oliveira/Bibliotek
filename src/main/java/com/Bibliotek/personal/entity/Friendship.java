@@ -33,6 +33,10 @@ public class Friendship {
     public Friendship(User user, User friend, FriendshipStatus pending) {
     }
 
+    public Friendship() {
+
+    }
+
     public enum FriendshipStatus {
         PENDING,
         ACCEPTED,

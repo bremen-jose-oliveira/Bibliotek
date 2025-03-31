@@ -1,13 +1,10 @@
 package com.bibliotek.personal.service;
 
-import com.bibliotek.personal.dto.FriendshipDTO;
 import com.bibliotek.personal.dto.user.UserDTO;
 import com.bibliotek.personal.dto.user.UserRegistrationDTO;
-import com.bibliotek.personal.entity.Friendship;
 import com.bibliotek.personal.entity.PasswordResetToken;
 import com.bibliotek.personal.entity.User;
 import com.bibliotek.personal.mapper.UserMapper;
-import com.bibliotek.personal.repository.FriendshipRepository;
 import com.bibliotek.personal.repository.PasswordResetTokenRepository;
 import com.bibliotek.personal.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +14,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -63,6 +61,17 @@ public class UserService {
         Optional<User> user = userRepository.findById(id);
         return user.map(UserMapper::toDTO).orElse(null);
     }
+    public List<UserDTO> getUsersByEmailOrUsername(String search) {
+        // Call the updated repository query method
+        List<User> users = userRepository.findByUsernameOrEmailContaining(search);
+
+        // Convert User entities to UserDTOs
+        return users.stream().map(UserMapper::toDTO).collect(Collectors.toList());
+    }
+
+
+
+
 
     public UserDTO createUser(UserRegistrationDTO userDTO) {
         // Check if user exists by email
@@ -83,8 +92,6 @@ public class UserService {
         } else {
             user.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword()));
         }
-
-
 
 
         userRepository.save(user);
@@ -177,5 +184,8 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+
+
+
 
 }
