@@ -28,7 +28,7 @@ This project is a backend system for a personal library application. It allows u
 - Exception handling and API response standardization
 
 ## Project Structure
-```
+```text
 My-Personal-Library-Back/
 ├── src/
 │   ├── main/
@@ -99,7 +99,7 @@ All endpoints are secured and require JWT authentication except for registration
 - Example data can be placed in `src/main/resources/data/`
 
 ## Testing
-- Unit and integration tests are located in `src/test/java/`
+Unit and integration tests are located in `src/test/java/`.
 - Run tests with:
   ```bash
   ./mvnw test
