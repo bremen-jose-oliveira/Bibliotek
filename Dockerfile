@@ -12,8 +12,8 @@ RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Use an Official OpenJDK image to run the application
-FROM openjdk:21
+# Use Eclipse Temurin (official OpenJDK) image to run the application
+FROM eclipse-temurin:21-jre
 
 # Set the working directory
 WORKDIR /app
