@@ -27,6 +27,8 @@ public class UserMapper {
 
         // Don't expose password in DTO
         userDTO.setUsername(user.getUsername());
+        userDTO.setCreatedAt(user.getCreatedAt());
+        userDTO.setUpdatedAt(user.getUpdatedAt());
 
         return userDTO;
     }

@@ -2,12 +2,16 @@ package com.bibliotek.personal.dto;
 
 import com.bibliotek.personal.dto.user.UserDTO;
 
+import java.time.LocalDateTime;
+
 public class UserBookStatusDTO {
     private int id;
     private BookDTO book;
     private UserDTO user;
     private String status;  // BookStatus enum or string
     private String visibility;  // BookVisibility enum or string
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public UserBookStatusDTO() {
     }
@@ -50,5 +54,21 @@ public class UserBookStatusDTO {
 
     public void setVisibility(String visibility) {
         this.visibility = visibility;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

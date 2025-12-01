@@ -11,8 +11,10 @@ public class UserBookStatusMapper {
         dto.setId(status.getId());
         dto.setBook(BookMapper.toDTO(status.getBook()));  // Convert book to BookDTO
         dto.setUser(UserMapper.toDTO(status.getUser()));  // Convert user to UserDTO
-        dto.setStatus(status.getStatus().toString());  // Convert status to string (optional)
-        dto.setVisibility(status.getVisibility().toString());  // Convert visibility to string (optional)
+        dto.setStatus(status.getStatus().toString());  // Convert status to string
+        dto.setVisibility(status.getVisibility().toString());  // Convert visibility to string
+        dto.setCreatedAt(status.getCreatedAt());
+        dto.setUpdatedAt(status.getUpdatedAt());
         return dto;
     }
 }

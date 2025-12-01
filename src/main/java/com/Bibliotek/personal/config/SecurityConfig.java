@@ -75,6 +75,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Disable CSRF protection
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/login").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers( "/oauth2/**").permitAll()
                         .requestMatchers("/api/users/create").permitAll()
                         .requestMatchers("/api/users/oauth2-login").permitAll()

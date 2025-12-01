@@ -14,7 +14,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,8 +21,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-    private static final String MAILGUN_DOMAIN = "sandboxxxxx.mailgun.org";
-    private static final String API_KEY = "your-mailgun-api-key";
     private final UserRepository userRepository;
 
 
@@ -114,6 +111,40 @@ public class UserService {
         return UserMapper.toDTO(user);
     }
 
+    public UserDTO updateCurrentUser(String email, String username) {
+        if (username == null || username.isBlank()) {
+            throw new RuntimeException("Username cannot be empty");
+        }
+
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        user.setUsername(username);
+        userRepository.save(user);
+        return UserMapper.toDTO(user);
+    }
+
+    public void updateCurrentUserPassword(String email, String oldPassword, String newPassword) {
+        if (oldPassword == null || oldPassword.isBlank() || newPassword == null || newPassword.isBlank()) {
+            throw new RuntimeException("Password fields cannot be empty");
+        }
+
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        if (!encoder.matches(oldPassword, user.getPassword())) {
+            throw new RuntimeException("Old password is incorrect");
+        }
+
+        user.setPassword(encoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
     public void deleteUser(int id) {
         Optional<User> existingUser = userRepository.findById(id);
         if (existingUser.isEmpty()) {
@@ -124,10 +155,24 @@ public class UserService {
     }
 
     public UserDTO login(String email, String password) {
+        System.out.println("UserService.login called for email: " + email);
         User user = userRepository.findByEmail(email);
-        if (user == null || !new BCryptPasswordEncoder().matches(password, user.getPassword())) {
+        
+        if (user == null) {
+            System.out.println("Login failed: User not found for email: " + email);
             throw new RuntimeException("Invalid credentials");
         }
+        
+        System.out.println("User found: " + user.getEmail() + ", checking password...");
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        boolean passwordMatches = encoder.matches(password, user.getPassword());
+        
+        if (!passwordMatches) {
+            System.out.println("Login failed: Password does not match for email: " + email);
+            throw new RuntimeException("Invalid credentials");
+        }
+        
+        System.out.println("Login successful for email: " + email);
         return UserMapper.toDTO(user);
     }
 

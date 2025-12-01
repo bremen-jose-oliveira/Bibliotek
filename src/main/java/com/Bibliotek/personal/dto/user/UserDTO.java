@@ -1,19 +1,17 @@
 package com.bibliotek.personal.dto.user;
 
-import com.bibliotek.personal.entity.Friendship;
-
-import java.util.List;
+import java.time.LocalDateTime;
 
 public class UserDTO {
 
     private int id;
     private String username;
     private String email;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public UserDTO() {
     }
-
-
 
     public UserDTO(String email, String username) {
         this.email = email;
@@ -42,5 +40,21 @@ public class UserDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
