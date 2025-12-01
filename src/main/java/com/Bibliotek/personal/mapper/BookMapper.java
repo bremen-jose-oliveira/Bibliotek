@@ -17,6 +17,7 @@ public class BookMapper {
         bookDTO.setPublisher(book.getBookDetails().getPublisher());
         bookDTO.setCover(book.getBookDetails().getCover());
         bookDTO.setOwner(book.getOwner().getEmail());
+        bookDTO.setOwnerUsername(book.getOwner().getUsername());
 
         // ✅ Ensure `readingStatus` is mapped correctly
         if (book.getReadingStatus() != null) {

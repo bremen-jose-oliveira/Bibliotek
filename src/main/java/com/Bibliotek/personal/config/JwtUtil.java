@@ -34,7 +34,7 @@ public class JwtUtil {
                 .add(claims)
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() +  1000 * 60 * 60)) // Adjust expiration time
+                .expiration(new Date(System.currentTimeMillis() +  1000 * 60 * 60 * 24)) // 24 hours expiration
                 .and()
                 .signWith( getSecretKey())
                 .compact();

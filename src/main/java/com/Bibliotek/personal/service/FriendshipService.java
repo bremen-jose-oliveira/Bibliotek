@@ -2,7 +2,7 @@ package com.bibliotek.personal.service;
 
 import com.bibliotek.personal.dto.FriendshipDTO;
 import com.bibliotek.personal.entity.Friendship;
-
+import com.bibliotek.personal.entity.Notification;
 import com.bibliotek.personal.entity.User;
 import com.bibliotek.personal.repository.FriendshipRepository;
 import com.bibliotek.personal.repository.UserRepository;
@@ -11,19 +11,25 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class FriendshipService {
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
+    private final NotificationService notificationService;
 
     @Autowired
-    public FriendshipService(UserRepository userRepository, FriendshipRepository friendshipRepository) {
+    public FriendshipService(UserRepository userRepository, 
+                            FriendshipRepository friendshipRepository,
+                            NotificationService notificationService) {
         this.userRepository = userRepository;
         this.friendshipRepository = friendshipRepository;
+        this.notificationService = notificationService;
     }
 
     public boolean sendFriendRequest(String userEmail, String friendEmail) {
@@ -51,6 +57,17 @@ public class FriendshipService {
 
         friendshipRepository.save(friendship);
 
+        // Create notification for the friend
+        notificationService.createNotification(
+            friendEmail,
+            Notification.NotificationType.FRIEND_REQUEST,
+            "New Friend Request",
+            user.getUsername() + " sent you a friend request",
+            userEmail,
+            null,
+            friendship.getId()
+        );
+
         return true;
 
     }
@@ -69,6 +86,18 @@ public class FriendshipService {
             Friendship friendship = friendshipOptional.get();
             friendship.setStatus(Friendship.FriendshipStatus.ACCEPTED);
             friendshipRepository.save(friendship);
+            
+            // Create notification for the requester
+            notificationService.createNotification(
+                friendEmail,
+                Notification.NotificationType.FRIEND_REQUEST_ACCEPTED,
+                "Friend Request Accepted",
+                user.getUsername() + " accepted your friend request",
+                userEmail,
+                null,
+                friendship.getId()
+            );
+            
             return true;
         }
         return false;
@@ -101,14 +130,30 @@ public class FriendshipService {
 
         List<Friendship> friendships = friendshipRepository.findAllAcceptedFriendships(user);
 
+        // Use a Set to track unique friend emails to avoid duplicates
+        Set<String> seenEmails = new HashSet<>();
+        
         return friendships.stream()
-                .map(f -> new FriendshipDTO(
-                        f.getId(),
-                        f.getFriend().getUsername(),
-                        f.getFriend().getEmail(),
-                        f.getStatus().name(),
-                        f.getCreatedAt(),
-                        f.getUpdatedAt()))
+                .map(f -> {
+                    // Determine which user is the friend (not the current user)
+                    // Compare by ID to avoid issues with equals() implementation
+                    User friendUser = f.getUser().getId() == user.getId() ? f.getFriend() : f.getUser();
+                    return new FriendshipDTO(
+                            f.getId(),
+                            friendUser.getUsername(),
+                            friendUser.getEmail(),
+                            f.getStatus().name(),
+                            f.getCreatedAt(),
+                            f.getUpdatedAt());
+                })
+                .filter(dto -> {
+                    // Filter out duplicates based on email
+                    if (seenEmails.contains(dto.getFriendEmail())) {
+                        return false;
+                    }
+                    seenEmails.add(dto.getFriendEmail());
+                    return true;
+                })
                 .collect(Collectors.toList());
     }
 

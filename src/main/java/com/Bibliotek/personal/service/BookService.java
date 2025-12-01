@@ -208,6 +208,7 @@ public class BookService {
         Book book = bookOptional.get();
         BookDTO bookDTO = BookMapper.toDTO(book);
         bookDTO.setOwner(book.getOwner().getEmail());
+        bookDTO.setOwnerUsername(book.getOwner().getUsername());
 
         // Fetch and attach reviews
         List<ReviewDTO> reviewDTOs = reviewRepository.findReviewsByBook(book)
@@ -218,8 +219,11 @@ public class BookService {
         bookDTO.setReviews(reviewDTOs);
         bookDTO.setReviewCount(reviewDTOs.size());
 
-        userBookStatusRepository.findStatusByBookId(bookId)
-                .ifPresent(s -> bookDTO.setReadingStatus(s.name()));
+        // Get the owner's reading status for this book
+        Optional<UserBookStatus> ownerStatus = userBookStatusRepository.findByUserIdAndBookId(
+            book.getOwner().getId(), bookId
+        );
+        ownerStatus.ifPresent(ubs -> bookDTO.setReadingStatus(ubs.getStatus().name()));
 
         return bookDTO;
     }

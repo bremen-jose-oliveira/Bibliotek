@@ -9,15 +9,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface ExchangeRepository  extends JpaRepository<Exchange, Integer>{
-    List<Exchange> findExchangesByBook(Book book);
+    @Query("SELECT e FROM Exchange e WHERE e.book = :book")
+    List<Exchange> findExchangesByBook(@Param("book") Book book);
 
+    @Query("SELECT e FROM Exchange e WHERE e.book.id = :bookId")
+    List<Exchange> findAllByBookId(@Param("bookId") int bookId);
 
-    @Query("SELECT e.status FROM Exchange e WHERE e.book.id = :bookId")
-    Optional<Exchange.ExchangeStatus> findStatusByBookId(@Param("bookId") int bookId);
-
-    List<Exchange> findByBorrowerId(int userId);
+    @Query("SELECT e FROM Exchange e WHERE e.borrower.id = :userId")
+    List<Exchange> findByBorrowerId(@Param("userId") int userId);
 }

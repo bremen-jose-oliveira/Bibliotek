@@ -1,0 +1,109 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PW}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      # WARNING: Do NOT use 'create' - it will DROP all tables and wipe your data!
+      # Options: 'none' (safest, no auto changes), 'update' (adds new tables/columns), 'validate' (checks only)
+      ddl-auto: none
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+
+  # If using SQLite instead of PostgreSQL, uncomment below:
+  # datasource:
+  #   driver-class-name: org.sqlite.JDBC
+  #   url: jdbc:sqlite:./src/main/resources/data/library.db
+  # jpa:
+  #   database-platform: org.hibernate.community.dialect.SQLiteDialect
+
+  mail:
+    host: smtp-relay.brevo.com
+    port: 587
+    username: 78eab5001@smtp-brevo.com
+    password: r6AsVSndtRL0Wwhc
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            enable: false
+
+  main:
+    banner-mode: off
+
+  resources:
+    static-locations: classpath:/static/
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 958080376950-ii8vapnkoq7r9s7ji8ps55fh09ie47m7.apps.googleusercontent.com
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            # Spring Security automatically constructs redirect URI as: {baseUrl}/login/oauth2/code/{registrationId}
+            # Make sure these are authorized in Google Cloud Console:
+            # - http://localhost:8080/login/oauth2/code/google (for local)
+            # - https://jose-long-morning-2431.fly.dev/login/oauth2/code/google (for production)
+            scope: email,profile
+
+          apple:
+            team-id: YJYA3WJYT5
+            key-id: YV7L248U6W
+            client-id: com.jose-oliv.mypersonallibraryfront.si
+            redirect-uri: ${BACK_END_URL}/login/oauth2/code/apple
+            scope: openid,email,name
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            client-name: Apple
+            user-name-attribute: sub
+            client-secret: "#{@appleClientSecretProvider.generate()}"
+
+        provider:
+          apple:
+            authorization-uri: https://appleid.apple.com/auth/authorize?response_mode=form_post
+            token-uri: https://appleid.apple.com/auth/token
+            jwk-set-uri: https://appleid.apple.com/auth/keys
+            user-name-attribute: sub
+
+server:
+  address: 0.0.0.0
+  port: 8080
+
+FrontEnd:
+  url: ${FRONT_END_URL}
+
+backEnd:
+  url: ${BACK_END_URL}
+
+Jwt:
+  key: ${JWT_SECRET_KEY}
+
+Smtp:
+  email: ${SMTP_EMAIL}
+
+logging:
+  level:
+    root: warn
+    org:
+      springframework:
+        security: DEBUG
+        web: DEBUG
+      hibernate:
+        SQL: DEBUG
+        type: WARN
+        engine: WARN
+        resource: WARN
+        transaction: WARN

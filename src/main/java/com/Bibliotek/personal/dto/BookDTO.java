@@ -14,6 +14,7 @@ public class BookDTO {
     private String publisher;
     private String cover;
     private String owner;
+    private String ownerUsername;
 
     // New Fields for Statuses
     private String readingStatus;
@@ -145,6 +146,14 @@ public class BookDTO {
 
     public void setOwner(String owner) {
         this.owner = owner;
+    }
+
+    public String getOwnerUsername() {
+        return ownerUsername;
+    }
+
+    public void setOwnerUsername(String ownerUsername) {
+        this.ownerUsername = ownerUsername;
     }
 
     public String getReadingStatus() {

@@ -95,5 +95,12 @@ public class BookController {
         return (bookDetails != null) ? new ResponseEntity<>(bookDetails, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    // Get books by user email (for viewing friend's books)
+    @GetMapping("/user/{email}")
+    public ResponseEntity<List<BookDTO>> getBooksByUserEmail(@PathVariable String email) {
+        List<BookDTO> books = bookService.getBooksByOwner(email);
+        return new ResponseEntity<>(books, HttpStatus.OK);
+    }
+
 
 }
