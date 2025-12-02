@@ -29,8 +29,9 @@ public class AppleClientSecretProvider {
     @Value("${spring.security.oauth2.client.registration.apple.client-id}")
     private String clientId;
 
-    // Path to your downloaded .p8 file (as classpath resource)
-    private static final String PRIVATE_KEY_PATH = "AuthKey_3NJ23GPMBU.p8";
+    // Apple private key - can be loaded from environment variable or classpath
+    @Value("${APPLE_PRIVATE_KEY:}")
+    private String privateKeyContent;
 
     public String generate() {
         try {
@@ -64,14 +65,25 @@ public class AppleClientSecretProvider {
     }
 
     private ECPrivateKey loadPrivateKey() throws Exception {
-        // Load from classpath (works both in IDE and JAR)
-        InputStream keyStream = getClass().getClassLoader().getResourceAsStream(PRIVATE_KEY_PATH);
-        if (keyStream == null) {
-            throw new IllegalStateException("Apple private key file not found: " + PRIVATE_KEY_PATH + 
-                ". Make sure AuthKey_3NJ23GPMBU.p8 is in src/main/resources/");
+        String keyContent;
+        
+        // Try to load from environment variable first (for production/Fly.io)
+        if (privateKeyContent != null && !privateKeyContent.isEmpty()) {
+            keyContent = privateKeyContent;
+        } else {
+            // Fallback: Load from classpath (for local development)
+            String PRIVATE_KEY_PATH = "AuthKey_3NJ23GPMBU.p8";
+            InputStream keyStream = getClass().getClassLoader().getResourceAsStream(PRIVATE_KEY_PATH);
+            if (keyStream == null) {
+                throw new IllegalStateException("Apple private key not found. " +
+                    "Either set APPLE_PRIVATE_KEY environment variable with the key content, " +
+                    "or place AuthKey_3NJ23GPMBU.p8 in src/main/resources/");
+            }
+            keyContent = new String(keyStream.readAllBytes(), StandardCharsets.UTF_8);
         }
         
-        String key = new String(keyStream.readAllBytes(), StandardCharsets.UTF_8)
+        // Clean the key content
+        String key = keyContent
                 .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
                 .replaceAll("\\s+", "");
