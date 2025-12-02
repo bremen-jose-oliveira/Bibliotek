@@ -48,9 +48,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         String sub = oAuth2User.getAttribute("sub"); // Apple unique user ID
 
         // Apple: On subsequent logins, email and name may be null, but sub is always present
-        if ((email == null || email.isEmpty()) && sub != null) {
+        if ((email == null || email.isEmpty()) && sub != null && !sub.isEmpty()) {
             email = sub + "@apple.com"; // Fallback email for Apple users
-            username = "AppleUser-" + sub.substring(0, 8);
+            username = "AppleUser-" + sub.substring(0, Math.min(8, sub.length()));
         }
 
         System.out.println("OAuth2 User attributes: " + oAuth2User.getAttributes());
@@ -70,7 +70,16 @@ public class CustomUserDetailsService implements UserDetailsService {
             userService.save(user); // Save the new user to the database
         }
 
-        System.out.println("OAuth2 User found: " + username);
+        System.out.println("OAuth2 User found/created: " + username + " (email: " + email + ")");
+
+        // Ensure email is always in attributes (Apple may not provide it on subsequent logins)
+        java.util.Map<String, Object> attributes = new java.util.HashMap<>(oAuth2User.getAttributes());
+        if (!attributes.containsKey("email") || attributes.get("email") == null) {
+            attributes.put("email", email);
+        }
+        if (!attributes.containsKey("name") || attributes.get("name") == null) {
+            attributes.put("name", username);
+        }
 
         // Use 'sub' as the principal attribute for Apple, 'name' for others
         String principalAttribute = (sub != null) ? "sub" : "name";
@@ -78,7 +87,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         // Return the DefaultOAuth2User, which is suitable for OAuth2 login
         return new DefaultOAuth2User(
                 Collections.emptyList(),  // No roles are being added for now
-                oAuth2User.getAttributes(),  // All user attributes (e.g., email, name, sub)
+                attributes,  // All user attributes with guaranteed email and name
                 principalAttribute // Principal attribute from OAuth2 provider
         );
     }

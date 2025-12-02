@@ -92,26 +92,33 @@ public class SecurityConfig {
                 )
 
                 .oauth2Login(oauth2 -> oauth2
-
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService())
+                        )
                         .successHandler((request, response, authentication) -> {
                             OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
                             System.out.println("\n\n" + "oAuth2User  ----->" + oAuth2User + "\n\n");
+                            System.out.println("OAuth2User attributes: " + oAuth2User.getAttributes());
 
-
+                            // Email should always be present now (CustomUserDetailsService ensures it)
                             String email = oAuth2User.getAttribute("email");
                             String username = oAuth2User.getAttribute("name");
 
+                            if (email == null || email.isEmpty()) {
+                                System.out.println("ERROR: Email is missing from OAuth2User attributes");
+                                response.sendError(400, "Unable to determine user email");
+                                return;
+                            }
+
                             // Generate the JWT token
                             String token = jwtUtil.generateToken(email);
-                            System.out.println("Login successful for user: " + username + " with token: " + token);
+                            System.out.println("Login successful for user: " + username + " (email: " + email + ") with token: " + token);
 
                             // Redirect to frontend with the token as a query parameter
-
                             String redirectUrl = FrontEndUrl+"/(tabs)" + "?token=" + token;
-                                    String jsonResponse = "{\"token\":\"" + token + "\"}";
-                                    response.getWriter().write(jsonResponse);
-
+                            String jsonResponse = "{\"token\":\"" + token + "\"}";
+                            response.getWriter().write(jsonResponse);
                             response.sendRedirect(redirectUrl);
                             response.getWriter().flush();
 
