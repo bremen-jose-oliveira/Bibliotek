@@ -55,9 +55,11 @@ public class AppleClientSecretProvider {
 
             SignedJWT signedJWT = new SignedJWT(header, claimsSet);
             signedJWT.sign(new ECDSASigner(privateKey));
-            System.out.println("Generated Apple client_secret: " + signedJWT.serialize());
+            String secret = signedJWT.serialize();
+            System.out.println("Generated Apple client_secret JWT (length: " + secret.length() + ")");
+            System.out.println("JWT preview: " + secret.substring(0, Math.min(50, secret.length())) + "...");
 
-            return signedJWT.serialize();
+            return secret;
 
         } catch (Exception e) {
             throw new IllegalStateException("Failed to generate Apple client_secret JWT", e);

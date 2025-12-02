@@ -63,13 +63,8 @@ spring:
             team-id: YJYA3WJYT5
             key-id: 3NJ23GPMBU
             client-id: com.jose-oliv.mypersonallibraryfront.si
-            redirect-uri: ${BACK_END_URL}/login/oauth2/code/apple
-            scope: openid,email,name
-            client-authentication-method: client_secret_post
-            authorization-grant-type: authorization_code
-            client-name: Apple
-            user-name-attribute: sub
-            client-secret: "#{@appleClientSecretProvider.generate()}"
+            # Note: client-secret is configured programmatically in AppleOAuth2Config.java
+            # because it needs to be generated dynamically as a JWT
 
         provider:
           apple:
