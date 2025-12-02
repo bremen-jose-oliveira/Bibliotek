@@ -7,15 +7,15 @@ import com.nimbusds.jwt.SignedJWT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Instant;
-import java.util.Date;
 import java.util.Base64;
+import java.util.Date;
 
 @Component("appleClientSecretProvider")
 public class AppleClientSecretProvider {
@@ -29,8 +29,8 @@ public class AppleClientSecretProvider {
     @Value("${spring.security.oauth2.client.registration.apple.client-id}")
     private String clientId;
 
-    // Path to your downloaded .p8 file
-    private static final String PRIVATE_KEY_PATH = "src/main/resources/AuthKey_3NJ23GPMBU.p8";
+    // Path to your downloaded .p8 file (as classpath resource)
+    private static final String PRIVATE_KEY_PATH = "AuthKey_3NJ23GPMBU.p8";
 
     public String generate() {
         try {
@@ -64,7 +64,14 @@ public class AppleClientSecretProvider {
     }
 
     private ECPrivateKey loadPrivateKey() throws Exception {
-        String key = new String(Files.readAllBytes(Paths.get(PRIVATE_KEY_PATH)))
+        // Load from classpath (works both in IDE and JAR)
+        InputStream keyStream = getClass().getClassLoader().getResourceAsStream(PRIVATE_KEY_PATH);
+        if (keyStream == null) {
+            throw new IllegalStateException("Apple private key file not found: " + PRIVATE_KEY_PATH + 
+                ". Make sure AuthKey_3NJ23GPMBU.p8 is in src/main/resources/");
+        }
+        
+        String key = new String(keyStream.readAllBytes(), StandardCharsets.UTF_8)
                 .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
                 .replaceAll("\\s+", "");

@@ -33,4 +33,5 @@ build/
 ### VS Code ###
 .vscode/
 node_modules
-src/main/resources/AuthKey_YV7L248U6W.p8
+# Apple OAuth private keys (should not be committed to Git)
+src/main/resources/AuthKey_*.p8
