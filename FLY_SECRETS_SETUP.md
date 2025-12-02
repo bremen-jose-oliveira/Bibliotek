@@ -13,11 +13,12 @@ Run these commands in your backend directory:
 cd My-Personal-Library-Back
 
 # Set Apple OAuth secrets (using values from application.yml)
-fly secrets set APPLE_TEAM_ID=YJYA3WJYT5
-fly secrets set APPLE_KEY_ID=YV7L248U6W
+# Use -a flag to specify app name
+fly secrets set APPLE_TEAM_ID=YJYA3WJYT5 -a jose-long-morning-2431
+fly secrets set APPLE_KEY_ID=YV7L248U6W -a jose-long-morning-2431
 
 # Verify secrets are set
-fly secrets list
+fly secrets list -a jose-long-morning-2431
 ```
 
 ### All Required Secrets
@@ -25,51 +26,53 @@ fly secrets list
 Make sure these are all set:
 
 ```bash
+# IMPORTANT: Use -a jose-long-morning-2431 for all commands
+
 # Database
-fly secrets set DB_URL=your_postgres_url
-fly secrets set DB_USER=your_db_user
-fly secrets set DB_PW=your_db_password
+fly secrets set DB_URL=your_postgres_url -a jose-long-morning-2431
+fly secrets set DB_USER=your_db_user -a jose-long-morning-2431
+fly secrets set DB_PW=your_db_password -a jose-long-morning-2431
 
 # Backend/Frontend URLs
-fly secrets set BACK_END_URL=https://jose-long-morning-2431.fly.dev
-fly secrets set FRONT_END_URL=https://p-lib.netlify.app
+fly secrets set BACK_END_URL=https://jose-long-morning-2431.fly.dev -a jose-long-morning-2431
+fly secrets set FRONT_END_URL=https://p-lib.netlify.app -a jose-long-morning-2431
 
 # JWT
-fly secrets set JWT_SECRET_KEY=your_jwt_secret_key
+fly secrets set JWT_SECRET_KEY=your_jwt_secret_key -a jose-long-morning-2431
 
 # SMTP
-fly secrets set SMTP_EMAIL=your_smtp_email
+fly secrets set SMTP_EMAIL=your_smtp_email -a jose-long-morning-2431
 
 # Google OAuth
-fly secrets set GOOGLE_CLIENT_SECRET=your_google_client_secret
+fly secrets set GOOGLE_CLIENT_SECRET=your_google_client_secret -a jose-long-morning-2431
 
 # Apple OAuth (NEW - this was missing!)
-fly secrets set APPLE_TEAM_ID=YJYA3WJYT5
-fly secrets set APPLE_KEY_ID=YV7L248U6W
+fly secrets set APPLE_TEAM_ID=YJYA3WJYT5 -a jose-long-morning-2431
+fly secrets set APPLE_KEY_ID=YV7L248U6W -a jose-long-morning-2431
 ```
 
 ## After Setting Secrets
 
 1. **Restart the app:**
    ```bash
-   fly restart
+   fly restart -a jose-long-morning-2431
    ```
 
 2. **Check logs:**
    ```bash
-   fly logs
+   fly logs -a jose-long-morning-2431
    ```
 
 3. **Verify it's running:**
    ```bash
-   fly status
+   fly status -a jose-long-morning-2431
    ```
 
 ## Verify Secrets
 
 ```bash
 # List all secrets
-fly secrets list
+fly secrets list -a jose-long-morning-2431
 
 # Should show all the variables above
 ```
