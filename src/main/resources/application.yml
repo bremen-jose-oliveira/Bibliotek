@@ -61,7 +61,7 @@ spring:
 
           apple:
             team-id: YJYA3WJYT5
-            key-id: YV7L248U6W
+            key-id: 3NJ23GPMBU
             client-id: com.jose-oliv.mypersonallibraryfront.si
             redirect-uri: ${BACK_END_URL}/login/oauth2/code/apple
             scope: openid,email,name

@@ -23,7 +23,7 @@ public class AppleClientSecretProvider {
     @Value("${APPLE_TEAM_ID:YJYA3WJYT5}")
     private String teamId;
 
-    @Value("${APPLE_KEY_ID:YV7L248U6W}")
+    @Value("${APPLE_KEY_ID:3NJ23GPMBU}")
     private String keyId;
 
     @Value("${spring.security.oauth2.client.registration.apple.client-id}")
