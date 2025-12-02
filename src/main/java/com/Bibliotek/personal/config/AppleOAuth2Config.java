@@ -63,6 +63,7 @@ public class AppleOAuth2Config {
                 .clientSecret(appleClientSecret)
                 .authorizationUri("https://appleid.apple.com/auth/authorize?response_mode=form_post")
                 .tokenUri("https://appleid.apple.com/auth/token")
+                .jwkSetUri("https://appleid.apple.com/auth/keys") // Required for signature verification
                 .userNameAttributeName("sub")
                 .scope("openid", "email", "name")
                 .redirectUri(backEndUrl + "/login/oauth2/code/apple")
