@@ -20,10 +20,10 @@ import java.util.Base64;
 @Component("appleClientSecretProvider")
 public class AppleClientSecretProvider {
 
-    @Value("${APPLE_TEAM_ID}")
+    @Value("${APPLE_TEAM_ID:YJYA3WJYT5}")
     private String teamId;
 
-    @Value("${APPLE_KEY_ID}")
+    @Value("${APPLE_KEY_ID:YV7L248U6W}")
     private String keyId;
 
     @Value("${spring.security.oauth2.client.registration.apple.client-id}")
