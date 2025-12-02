@@ -21,3 +21,4 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
     long countUnreadByUser(@Param("user") User user);
 }
 
+
