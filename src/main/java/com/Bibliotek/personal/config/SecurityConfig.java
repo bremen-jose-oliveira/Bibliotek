@@ -1,8 +1,11 @@
 package com.bibliotek.personal.config;
 
 
+import com.bibliotek.personal.entity.User;
 import com.bibliotek.personal.service.CustomOAuth2UserService;
+import com.bibliotek.personal.service.CustomOidcUserService;
 import com.bibliotek.personal.service.CustomUserDetailsService;
+import com.bibliotek.personal.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,12 +34,14 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final UserService userService;
     public JwtUtil jwtUtil;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter, JwtUtil jwtUtil) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter, JwtUtil jwtUtil, UserService userService) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.jwtUtil = jwtUtil;
+        this.userService = userService;
     }
 
     @Value("${FrontEnd.url}")
@@ -93,34 +98,65 @@ public class SecurityConfig {
 
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService())
+                                .oidcUserService(customOidcUserService()) // For Apple (OIDC)
+                                .userService(customOAuth2UserService()) // For Google (OAuth2)
                         )
                         .successHandler((request, response, authentication) -> {
+                            System.out.println("\n\n========== OAUTH2 SUCCESS HANDLER STARTED ==========");
+                            System.out.println("Request URI: " + request.getRequestURI());
+                            System.out.println("Authentication: " + authentication);
+                            
                             OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
                             System.out.println("\n\n" + "oAuth2User  ----->" + oAuth2User + "\n\n");
                             System.out.println("OAuth2User attributes: " + oAuth2User.getAttributes());
+                            System.out.println("OAuth2User name: " + oAuth2User.getName());
 
                             // Email should always be present now (CustomUserDetailsService ensures it)
                             String email = oAuth2User.getAttribute("email");
                             String username = oAuth2User.getAttribute("name");
+                            String sub = oAuth2User.getAttribute("sub");
+
+                            System.out.println("Extracted - email: " + email + ", username: " + username + ", sub: " + sub);
 
                             if (email == null || email.isEmpty()) {
-                                System.out.println("ERROR: Email is missing from OAuth2User attributes");
+                                System.out.println("❌ ERROR: Email is missing from OAuth2User attributes");
+                                System.out.println("All attributes: " + oAuth2User.getAttributes());
                                 response.sendError(400, "Unable to determine user email");
                                 return;
                             }
 
+                            // Verify user exists in database (should have been created by CustomUserDetailsService)
+                            try {
+                                User user = userService.findByEmail(email);
+                                if (user == null && sub != null) {
+                                    user = userService.findByOauthProviderId(sub);
+                                }
+                                if (user == null) {
+                                    System.out.println("⚠️ WARNING: User not found in database after OAuth login!");
+                                    System.out.println("Email: " + email + ", Sub: " + sub);
+                                    System.out.println("This should not happen - user should have been created by CustomUserDetailsService");
+                                } else {
+                                    System.out.println("✅ User found in database: ID=" + user.getId() + ", email=" + user.getEmail() + ", oauthProviderId=" + user.getOauthProviderId());
+                                }
+                            } catch (Exception e) {
+                                System.out.println("❌ ERROR checking user in database: " + e.getMessage());
+                                e.printStackTrace();
+                            }
+
                             // Generate the JWT token
                             String token = jwtUtil.generateToken(email);
-                            System.out.println("Login successful for user: " + username + " (email: " + email + ") with token: " + token);
+                            System.out.println("✅ Login successful for user: " + username + " (email: " + email + ") with token: " + token.substring(0, Math.min(50, token.length())) + "...");
 
                             // Redirect to frontend with the token as a query parameter
                             String redirectUrl = FrontEndUrl+"/(tabs)" + "?token=" + token;
                             String jsonResponse = "{\"token\":\"" + token + "\"}";
+                            System.out.println("Redirecting to: " + redirectUrl);
                             response.getWriter().write(jsonResponse);
                             response.sendRedirect(redirectUrl);
                             response.getWriter().flush();
+                            
+                            System.out.println("========== OAUTH2 SUCCESS HANDLER COMPLETED ==========\n\n");
 
                         })
 
@@ -135,9 +171,11 @@ public class SecurityConfig {
 
     @Bean
     public OAuth2UserService<OAuth2UserRequest, OAuth2User> customOAuth2UserService() {
-
         return new CustomOAuth2UserService(userDetailsService);
     }
 
-
+    @Bean
+    public CustomOidcUserService customOidcUserService() {
+        return new CustomOidcUserService(userDetailsService);
+    }
 }

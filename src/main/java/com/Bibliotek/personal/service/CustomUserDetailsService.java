@@ -44,10 +44,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     // This method handles OAuth2 login
     @Transactional
     public OAuth2User loadUserByOAuth2(OAuth2User oAuth2User) {
+        System.out.println("\n========== LOAD USER BY OAUTH2 STARTED ==========");
         // Extract user information from OAuth2 provider (Google, Facebook, Apple, etc.)
         String email = oAuth2User.getAttribute("email");
         String username = oAuth2User.getAttribute("name");
         String sub = oAuth2User.getAttribute("sub"); // Apple unique user ID
+        System.out.println("Initial attributes - email: " + email + ", username: " + username + ", sub: " + sub);
 
         // Apple: On subsequent logins, email and name may be null, but sub is always present
         if ((email == null || email.isEmpty()) && sub != null && !sub.isEmpty()) {
@@ -86,9 +88,19 @@ public class CustomUserDetailsService implements UserDetailsService {
             String hashedPassword = passwordEncoder.encode(user.getPassword());
             user.setPassword(hashedPassword);
             try {
+                System.out.println("Attempting to save new user to database...");
+                System.out.println("User details before save - email: " + user.getEmail() + ", username: " + user.getUsername() + ", oauthProviderId: " + user.getOauthProviderId());
                 userService.save(user); // Save the new user to the database
                 System.out.println("✅ SUCCESS: Created new OAuth2 user: " + username + " (email: " + email + ", providerId: " + sub + ")");
                 System.out.println("✅ User ID after save: " + user.getId());
+                
+                // Verify the user was actually saved
+                User verifyUser = userService.findByEmail(email);
+                if (verifyUser != null) {
+                    System.out.println("✅ VERIFIED: User exists in database after save - ID: " + verifyUser.getId());
+                } else {
+                    System.out.println("❌ WARNING: User NOT found in database after save! Transaction may not have committed.");
+                }
             } catch (Exception e) {
                 System.out.println("❌ ERROR: Failed to save OAuth2 user: " + e.getMessage());
                 e.printStackTrace();
@@ -122,11 +134,14 @@ public class CustomUserDetailsService implements UserDetailsService {
         // Use 'sub' as the principal attribute for Apple, 'name' for others
         String principalAttribute = (sub != null) ? "sub" : "name";
 
-        // Return the DefaultOAuth2User, which is suitable for OAuth2 login
-        return new DefaultOAuth2User(
+        System.out.println("Creating DefaultOAuth2User with email: " + email);
+        DefaultOAuth2User result = new DefaultOAuth2User(
                 Collections.emptyList(),  // No roles are being added for now
                 attributes,  // All user attributes with guaranteed email and name
                 principalAttribute // Principal attribute from OAuth2 provider
         );
+        System.out.println("✅ DefaultOAuth2User created successfully");
+        System.out.println("========== LOAD USER BY OAUTH2 COMPLETE ==========\n");
+        return result;
     }
 }

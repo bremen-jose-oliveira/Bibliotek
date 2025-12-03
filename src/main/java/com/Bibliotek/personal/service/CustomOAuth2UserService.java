@@ -25,20 +25,34 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        System.out.println("\n\n========== CUSTOM OAUTH2 USER SERVICE ==========");
         System.out.println("Loading OAuth2 user for registration: " + registrationId);
+        System.out.println("Client ID: " + userRequest.getClientRegistration().getClientId());
 
         OAuth2User oAuth2User;
         
-        if ("apple".equals(registrationId)) {
-            // Apple doesn't provide a user info endpoint - extract from ID token
-            oAuth2User = loadAppleUser(userRequest);
-        } else {
-            // For Google and other providers, use default behavior
-            oAuth2User = super.loadUser(userRequest);
-        }
+        try {
+            if ("apple".equals(registrationId)) {
+                // Apple doesn't provide a user info endpoint - extract from ID token
+                System.out.println("Processing Apple OAuth2 login...");
+                oAuth2User = loadAppleUser(userRequest);
+            } else {
+                // For Google and other providers, use default behavior
+                System.out.println("Processing " + registrationId + " OAuth2 login (default flow)...");
+                oAuth2User = super.loadUser(userRequest);
+            }
 
-        System.out.println("OAuth2 User attributes: " + oAuth2User.getAttributes());
-        return userDetailsService.loadUserByOAuth2(oAuth2User); // Delegate to CustomUserDetailsService
+            System.out.println("OAuth2 User attributes: " + oAuth2User.getAttributes());
+            System.out.println("Calling userDetailsService.loadUserByOAuth2()...");
+            OAuth2User result = userDetailsService.loadUserByOAuth2(oAuth2User);
+            System.out.println("✅ UserDetailsService returned OAuth2User successfully");
+            System.out.println("========== CUSTOM OAUTH2 USER SERVICE COMPLETE ==========\n\n");
+            return result;
+        } catch (Exception e) {
+            System.out.println("❌ ERROR in CustomOAuth2UserService.loadUser(): " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private OAuth2User loadAppleUser(OAuth2UserRequest userRequest) {
