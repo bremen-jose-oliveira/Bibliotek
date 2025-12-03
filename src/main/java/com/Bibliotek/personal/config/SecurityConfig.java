@@ -159,6 +159,18 @@ public class SecurityConfig {
                             System.out.println("========== OAUTH2 SUCCESS HANDLER COMPLETED ==========\n\n");
 
                         })
+                        .failureHandler((request, response, exception) -> {
+                            System.out.println("\n\n========== OAUTH2 FAILURE HANDLER ==========");
+                            System.out.println("OAuth login failed: " + exception.getMessage());
+                            exception.printStackTrace();
+                            
+                            // Redirect to frontend with error parameter
+                            String redirectUrl = FrontEndUrl + "/(tabs)?error=oauth_failed";
+                            System.out.println("Redirecting to: " + redirectUrl);
+                            response.sendRedirect(redirectUrl);
+                            
+                            System.out.println("========== OAUTH2 FAILURE HANDLER COMPLETE ==========\n\n");
+                        })
 
                 )
 

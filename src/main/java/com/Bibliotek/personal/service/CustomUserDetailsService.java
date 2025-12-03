@@ -56,6 +56,28 @@ public class CustomUserDetailsService implements UserDetailsService {
             email = sub + "@apple.com"; // Fallback email for Apple users
             username = "AppleUser-" + sub.substring(0, Math.min(8, sub.length()));
         }
+        
+        // If username is null or empty, extract it from email (part before @)
+        if ((username == null || username.isEmpty()) && email != null && !email.isEmpty()) {
+            int atIndex = email.indexOf('@');
+            if (atIndex > 0) {
+                username = email.substring(0, atIndex);
+                System.out.println("Extracted username from email: " + username);
+            } else {
+                // Fallback if email doesn't have @ (shouldn't happen, but just in case)
+                username = email.length() > 20 ? email.substring(0, 20) : email;
+            }
+        }
+        
+        // Final fallback if username is still null
+        if (username == null || username.isEmpty()) {
+            if (sub != null && !sub.isEmpty()) {
+                username = "User-" + sub.substring(0, Math.min(8, sub.length()));
+            } else {
+                username = "User-" + System.currentTimeMillis();
+            }
+            System.out.println("Using fallback username: " + username);
+        }
 
         System.out.println("OAuth2 User attributes: " + oAuth2User.getAttributes());
         System.out.println("OAuth2 User resolved email: " + email + ", username: " + username + ", sub: " + sub);
@@ -108,13 +130,23 @@ public class CustomUserDetailsService implements UserDetailsService {
             }
         } else {
             // Update OAuth provider ID if it's missing (for users created before this field was added)
+            boolean needsUpdate = false;
             if (sub != null && !sub.isEmpty() && (user.getOauthProviderId() == null || user.getOauthProviderId().isEmpty())) {
                 user.setOauthProviderId(sub);
+                needsUpdate = true;
+            }
+            // Update username if it's null or empty
+            if (user.getUsername() == null || user.getUsername().isEmpty()) {
+                user.setUsername(username);
+                needsUpdate = true;
+                System.out.println("Updating existing user with username: " + username);
+            }
+            if (needsUpdate) {
                 try {
                     userService.save(user);
-                    System.out.println("✅ Updated existing user with OAuth provider ID: " + sub);
+                    System.out.println("✅ Updated existing user - oauthProviderId: " + (sub != null ? sub : "unchanged") + ", username: " + username);
                 } catch (Exception e) {
-                    System.out.println("❌ ERROR: Failed to update user with OAuth provider ID: " + e.getMessage());
+                    System.out.println("❌ ERROR: Failed to update user: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
