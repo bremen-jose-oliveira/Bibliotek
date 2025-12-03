@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
@@ -41,6 +42,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     // This method handles OAuth2 login
+    @Transactional
     public OAuth2User loadUserByOAuth2(OAuth2User oAuth2User) {
         // Extract user information from OAuth2 provider (Google, Facebook, Apple, etc.)
         String email = oAuth2User.getAttribute("email");
@@ -83,14 +85,26 @@ public class CustomUserDetailsService implements UserDetailsService {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String hashedPassword = passwordEncoder.encode(user.getPassword());
             user.setPassword(hashedPassword);
-            userService.save(user); // Save the new user to the database
-            System.out.println("Created new OAuth2 user: " + username + " (email: " + email + ", providerId: " + sub + ")");
+            try {
+                userService.save(user); // Save the new user to the database
+                System.out.println("✅ SUCCESS: Created new OAuth2 user: " + username + " (email: " + email + ", providerId: " + sub + ")");
+                System.out.println("✅ User ID after save: " + user.getId());
+            } catch (Exception e) {
+                System.out.println("❌ ERROR: Failed to save OAuth2 user: " + e.getMessage());
+                e.printStackTrace();
+                throw new RuntimeException("Failed to save OAuth2 user", e);
+            }
         } else {
             // Update OAuth provider ID if it's missing (for users created before this field was added)
             if (sub != null && !sub.isEmpty() && (user.getOauthProviderId() == null || user.getOauthProviderId().isEmpty())) {
                 user.setOauthProviderId(sub);
-                userService.save(user);
-                System.out.println("Updated existing user with OAuth provider ID: " + sub);
+                try {
+                    userService.save(user);
+                    System.out.println("✅ Updated existing user with OAuth provider ID: " + sub);
+                } catch (Exception e) {
+                    System.out.println("❌ ERROR: Failed to update user with OAuth provider ID: " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
         }
 
