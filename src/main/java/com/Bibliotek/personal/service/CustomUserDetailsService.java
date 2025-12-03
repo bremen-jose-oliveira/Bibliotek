@@ -54,20 +54,44 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         System.out.println("OAuth2 User attributes: " + oAuth2User.getAttributes());
-        System.out.println("OAuth2 User resolved email: " + email + ", username: " + username);
+        System.out.println("OAuth2 User resolved email: " + email + ", username: " + username + ", sub: " + sub);
 
-        // Check if user already exists in the database or create a new one
-        User user = userService.findByEmail(email);
+        // Check if user already exists in the database
+        // First, try to find by OAuth provider ID (sub) - this works for subsequent Apple logins
+        User user = null;
+        if (sub != null && !sub.isEmpty()) {
+            user = userService.findByOauthProviderId(sub);
+            System.out.println("User lookup by OAuth provider ID (sub): " + (user != null ? "Found" : "Not found"));
+        }
+        
+        // If not found by provider ID, try to find by email
+        if (user == null) {
+            user = userService.findByEmail(email);
+            System.out.println("User lookup by email: " + (user != null ? "Found" : "Not found"));
+        }
+        
+        // If user doesn't exist, create a new one
         if (user == null) {
             user = new User();
             user.setUsername(username);
             user.setEmail(email);
+            if (sub != null && !sub.isEmpty()) {
+                user.setOauthProviderId(sub); // Store the OAuth provider ID for future lookups
+            }
             user.setPassword("O@uth2" + Math.random());
             System.out.printf("O@uth2" + Math.random());
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String hashedPassword = passwordEncoder.encode(user.getPassword());
             user.setPassword(hashedPassword);
             userService.save(user); // Save the new user to the database
+            System.out.println("Created new OAuth2 user: " + username + " (email: " + email + ", providerId: " + sub + ")");
+        } else {
+            // Update OAuth provider ID if it's missing (for users created before this field was added)
+            if (sub != null && !sub.isEmpty() && (user.getOauthProviderId() == null || user.getOauthProviderId().isEmpty())) {
+                user.setOauthProviderId(sub);
+                userService.save(user);
+                System.out.println("Updated existing user with OAuth provider ID: " + sub);
+            }
         }
 
         System.out.println("OAuth2 User found/created: " + username + " (email: " + email + ")");

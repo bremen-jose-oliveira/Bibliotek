@@ -12,7 +12,11 @@ spring:
     show-sql: true
     hibernate:
       # WARNING: Do NOT use 'create' - it will DROP all tables and wipe your data!
-      # Options: 'none' (safest, no auto changes), 'update' (adds new tables/columns), 'validate' (checks only)
+      # Options: 
+      #   'none' (safest, no auto changes - requires manual migrations)
+      #   'update' (adds new tables/columns safely - USE THIS for adding oauth_provider_id column)
+      #   'validate' (checks only, fails if schema doesn't match)
+      #   'create' (DANGER: drops all tables and recreates - will lose all data!)
       ddl-auto: none
     properties:
       hibernate:

@@ -54,6 +54,10 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    public User findByOauthProviderId(String oauthProviderId) {
+        return userRepository.findByOauthProviderId(oauthProviderId);
+    }
+
     public UserDTO getUserById(int id) {
         Optional<User> user = userRepository.findById(id);
         return user.map(UserMapper::toDTO).orElse(null);

@@ -43,26 +43,46 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private OAuth2User loadAppleUser(OAuth2UserRequest userRequest) {
         try {
-            // For Apple, the ID token is in the additional parameters of the token response
-            // Spring Security stores it in the access token response's additional parameters
+            // For Apple (OpenID Connect), the ID token is in the token response
+            // Spring Security OAuth2 Client stores it in additionalParameters
             String idTokenValue = null;
             
-            // Try to get ID token from additional parameters
+            System.out.println("Attempting to extract Apple ID token...");
+            System.out.println("Additional parameters: " + userRequest.getAdditionalParameters());
+            
+            // Method 1: Try to get ID token from additional parameters (most common for OIDC)
             if (userRequest.getAdditionalParameters() != null) {
                 Object idTokenObj = userRequest.getAdditionalParameters().get("id_token");
                 if (idTokenObj != null) {
                     idTokenValue = idTokenObj.toString();
+                    System.out.println("Found ID token in additional parameters");
                 }
             }
             
-            // If not found, try to get from access token (though this is usually the access token, not ID token)
+            // Method 2: The access token response might contain the ID token
+            // For OIDC providers, Spring Security might include it in the token response
+            // Check if the access token itself is actually the ID token (unlikely but possible)
             if (idTokenValue == null) {
-                // The access token response should contain the ID token
-                // We need to get it from the OAuth2AccessTokenResponse
-                System.out.println("Attempting to extract ID token from token response...");
-                // Note: Spring Security might have already extracted it, check if it's in the request
-                idTokenValue = userRequest.getAccessToken().getTokenValue();
-                System.out.println("Using access token value (may not be ID token): " + idTokenValue.substring(0, Math.min(50, idTokenValue.length())) + "...");
+                // Try to parse the access token as ID token (sometimes they're the same for OIDC)
+                String accessTokenValue = userRequest.getAccessToken().getTokenValue();
+                System.out.println("Access token length: " + accessTokenValue.length());
+                
+                // ID tokens are JWTs, so they have 3 parts separated by dots
+                // Access tokens might also be JWTs, so we need to check
+                if (accessTokenValue.contains(".") && accessTokenValue.split("\\.").length == 3) {
+                    // This might be a JWT - try parsing it as ID token
+                    try {
+                        JWT testToken = JWTParser.parse(accessTokenValue);
+                        JWTClaimsSet testClaims = testToken.getJWTClaimsSet();
+                        // If it has 'sub' claim, it's likely an ID token
+                        if (testClaims.getSubject() != null) {
+                            idTokenValue = accessTokenValue;
+                            System.out.println("Using access token as ID token (contains 'sub' claim)");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Access token is not a valid ID token: " + e.getMessage());
+                    }
+                }
             }
 
             if (idTokenValue == null || idTokenValue.isEmpty()) {
