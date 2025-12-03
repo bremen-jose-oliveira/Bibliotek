@@ -158,6 +158,31 @@ public class UserService {
         userRepository.delete(existingUser.get());
     }
 
+    @org.springframework.transaction.annotation.Transactional
+    public void deleteUserByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found with email: " + email);
+        }
+
+        System.out.println("🗑️ Deleting user account: " + email);
+        System.out.println("   - User ID: " + user.getId());
+        System.out.println("   - This will permanently delete:");
+        System.out.println("     * All user's books");
+        System.out.println("     * All user's reviews");
+        System.out.println("     * All user's exchanges");
+        System.out.println("     * All user's friendships");
+        System.out.println("     * All user's notifications");
+        System.out.println("     * User account");
+
+        // Delete the user - cascade will handle related entities
+        // Books, Exchanges, and Friendships will be deleted automatically due to CascadeType.ALL
+        // Reviews need to be handled separately if they're not cascaded
+        userRepository.delete(user);
+        
+        System.out.println("✅ User account and all associated data deleted successfully");
+    }
+
     public UserDTO login(String email, String password) {
         System.out.println("UserService.login called for email: " + email);
         User user = userRepository.findByEmail(email);

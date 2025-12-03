@@ -109,6 +109,20 @@ public class UserController {
         }
     }
 
+    @DeleteMapping("/current")
+    public ResponseEntity<ApiResponse> deleteCurrentUser(Authentication authentication) {
+        try {
+            String email = authentication.getName();
+            System.out.println("Deleting user account for: " + email);
+            userService.deleteUserByEmail(email);
+            return new ResponseEntity<>(new ApiResponse("Account deleted successfully", true, 200), HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println("Error deleting user account: " + e.getMessage());
+            e.printStackTrace();
+            return new ResponseEntity<>(new ApiResponse(e.getMessage(), false, 400), HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
         try {

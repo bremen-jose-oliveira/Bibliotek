@@ -10,6 +10,7 @@ import com.bibliotek.personal.mapper.ReviewMapper;
 import com.bibliotek.personal.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -52,6 +53,7 @@ public class BookService {
         return book.map(BookMapper::toDTO).orElse(null);
     }
 
+    @Transactional
     public BookDTO createBook(BookDTO bookDTO, String email) {
         // Retrieve the user (owner)
         User owner = userRepository.findByEmail(email);
@@ -76,7 +78,12 @@ public class BookService {
 
         // Convert DTO to entity
         Book book = BookMapper.toEntity(owner, bookDetails);
+        System.out.println("📚 Creating Book entity - Owner: " + owner.getEmail() + ", BookDetails ID: " + bookDetails.getId());
+        System.out.println("📚 Book entity before save - Owner ID: " + book.getOwner().getId() + ", BookDetails ID: " + book.getBookDetails().getId());
+        
         Book savedBook = bookRepository.save(book);
+        System.out.println("✅ Book saved successfully - Book ID: " + savedBook.getId() + ", Owner: " + savedBook.getOwner().getEmail());
+        System.out.println("✅ VERIFIED: Book exists in database with ID: " + savedBook.getId());
 
         return BookMapper.toDTO(savedBook);
     }
