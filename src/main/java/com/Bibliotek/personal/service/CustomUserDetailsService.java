@@ -42,7 +42,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     // This method handles OAuth2 login
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public OAuth2User loadUserByOAuth2(OAuth2User oAuth2User) {
         System.out.println("\n========== LOAD USER BY OAUTH2 STARTED ==========");
         // Extract user information from OAuth2 provider (Google, Facebook, Apple, etc.)
@@ -112,7 +112,8 @@ public class CustomUserDetailsService implements UserDetailsService {
             try {
                 System.out.println("Attempting to save new user to database...");
                 System.out.println("User details before save - email: " + user.getEmail() + ", username: " + user.getUsername() + ", oauthProviderId: " + user.getOauthProviderId());
-                userService.save(user); // Save the new user to the database
+                User savedUser = userService.save(user); // Save the new user to the database
+                user = savedUser; // Update reference to saved user with ID
                 System.out.println("✅ SUCCESS: Created new OAuth2 user: " + username + " (email: " + email + ", providerId: " + sub + ")");
                 System.out.println("✅ User ID after save: " + user.getId());
                 
@@ -143,11 +144,13 @@ public class CustomUserDetailsService implements UserDetailsService {
             }
             if (needsUpdate) {
                 try {
-                    userService.save(user);
+                    User updatedUser = userService.save(user);
+                    user = updatedUser; // Update reference
                     System.out.println("✅ Updated existing user - oauthProviderId: " + (sub != null ? sub : "unchanged") + ", username: " + username);
                 } catch (Exception e) {
                     System.out.println("❌ ERROR: Failed to update user: " + e.getMessage());
                     e.printStackTrace();
+                    throw new RuntimeException("Failed to update OAuth2 user", e);
                 }
             }
         }

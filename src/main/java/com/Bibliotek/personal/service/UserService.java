@@ -13,6 +13,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -205,8 +206,11 @@ public class UserService {
         return UserMapper.toDTO(user);
     }
 
-    public void save(User user) {
-        userRepository.save(user);
+    @Transactional
+    public User save(User user) {
+        User savedUser = userRepository.save(user);
+        userRepository.flush(); // Force immediate database write
+        return savedUser;
     }
 
     public boolean sendPasswordResetEmail(String email) {
