@@ -29,7 +29,7 @@ public class User {
     @Column(name = "oauth_provider_id", nullable = true, unique = true)
     private String oauthProviderId; // Store OAuth provider's unique ID (e.g., Apple's 'sub')
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "owner", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = false)
     private List<Book> books;
 
     @OneToMany(mappedBy = "borrower", cascade = CascadeType.ALL)
