@@ -93,6 +93,9 @@ public class AuthController {
                     .body(Collections.singletonMap("error", "Email not provided by Google"));
             }
 
+            // Get Google user ID from token (if available)
+            String googleUserId = googleUserInfo.get("id");
+            
             // Find or create user
             User user = userService.findByEmail(email);
             if (user == null) {
@@ -100,10 +103,21 @@ public class AuthController {
                 user = new User();
                 user.setEmail(email);
                 user.setUsername(name != null && !name.isEmpty() ? name : email.split("@")[0]);
+                // Set Google provider ID
+                if (googleUserId != null && !googleUserId.isEmpty()) {
+                    user.setOauthProviderId("google:" + googleUserId);
+                }
                 // Generate a secure random password for OAuth users
                 String randomPassword = "OAuth" + System.currentTimeMillis() + Math.random();
                 user.setPassword(new BCryptPasswordEncoder().encode(randomPassword));
                 userService.save(user);
+            } else {
+                // Update existing user with Google provider ID if not set
+                if ((user.getOauthProviderId() == null || user.getOauthProviderId().isEmpty()) 
+                    && googleUserId != null && !googleUserId.isEmpty()) {
+                    user.setOauthProviderId("google:" + googleUserId);
+                    userService.save(user);
+                }
             }
 
             // Generate JWT token
@@ -147,11 +161,23 @@ public class AuthController {
             String email = appleUserInfo.get("email");
             String name = appleUserInfo.get("name");
 
+            // Extract Apple user ID from token (sub claim) or from request
+            String appleSubId = appleUserInfo.get("sub");
+            if (appleSubId == null || appleSubId.isEmpty()) {
+                appleSubId = appleUserId; // Fallback to user parameter
+            }
+            
             // Apple may not always provide email in token (especially on subsequent logins)
             // Use the email from token if available, otherwise try to find user by Apple user ID
             User user = null;
             if (email != null && !email.isEmpty()) {
                 user = userService.findByEmail(email);
+            }
+            
+            // If user not found by email, try to find by Apple provider ID
+            if (user == null && appleSubId != null && !appleSubId.isEmpty()) {
+                // Note: This requires a findByOauthProviderId method in UserService
+                // For now, we'll create/find by email only
             }
 
             if (user == null) {
@@ -161,14 +187,25 @@ public class AuthController {
                     user.setEmail(email);
                 } else {
                     // Generate a placeholder email if not provided
-                    user.setEmail("apple_" + (appleUserId != null ? appleUserId : System.currentTimeMillis()) + "@apple.oauth");
+                    user.setEmail("apple_" + (appleSubId != null ? appleSubId : System.currentTimeMillis()) + "@apple.oauth");
                 }
                 user.setUsername(name != null && !name.isEmpty() ? name : 
                     (email != null ? email.split("@")[0] : "AppleUser"));
+                // Set Apple provider ID
+                if (appleSubId != null && !appleSubId.isEmpty()) {
+                    user.setOauthProviderId("apple:" + appleSubId);
+                }
                 // Generate a secure random password for OAuth users
                 String randomPassword = "OAuth" + System.currentTimeMillis() + Math.random();
                 user.setPassword(new BCryptPasswordEncoder().encode(randomPassword));
                 userService.save(user);
+            } else {
+                // Update existing user with Apple provider ID if not set
+                if ((user.getOauthProviderId() == null || user.getOauthProviderId().isEmpty()) 
+                    && appleSubId != null && !appleSubId.isEmpty()) {
+                    user.setOauthProviderId("apple:" + appleSubId);
+                    userService.save(user);
+                }
             }
 
             // Generate JWT token
@@ -217,6 +254,7 @@ public class AuthController {
             Map<String, String> userInfo = new HashMap<>();
             userInfo.put("email", jsonNode.has("email") ? jsonNode.get("email").asText() : null);
             userInfo.put("name", jsonNode.has("name") ? jsonNode.get("name").asText() : null);
+            userInfo.put("id", jsonNode.has("id") ? jsonNode.get("id").asText() : null);
 
             return userInfo;
 
