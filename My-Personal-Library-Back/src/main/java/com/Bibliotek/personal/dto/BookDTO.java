@@ -13,13 +13,13 @@ public class BookDTO {
     private String cover;
     private String description;
     private String owner;
+    private String ownerUsername;
 
-    // New Fields for Statuses
     private String readingStatus;
     private String exchangeStatus;
 
-    private List<ReviewDTO> reviews; // Use ReviewDTO here
-    private List<ExchangeDTO> exchanges; // Use ExchangeDTO here
+    private List<ReviewDTO> reviews;
+    private List<ExchangeDTO> exchanges;
     private int reviewCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -45,7 +45,6 @@ public class BookDTO {
         this.updatedAt = updatedAt;
     }
 
-    // Constructor for full details (for `/books/{id}` endpoint)
     public BookDTO(int id, String isbn, String title, String author, int year, String publisher, String cover,
             String owner, String readingStatus, String exchangeStatus, List<ReviewDTO> reviews,
             List<ExchangeDTO> exchanges, int reviewCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
@@ -66,7 +65,6 @@ public class BookDTO {
         this.updatedAt = updatedAt;
     }
 
-    // Getters and Setters
     public List<ReviewDTO> getReviews() {
         return reviews;
     }
@@ -151,6 +149,14 @@ public class BookDTO {
         return owner;
     }
 
+    public String getOwnerUsername() {
+        return ownerUsername;
+    }
+
+    public void setOwnerUsername(String ownerUsername) {
+        this.ownerUsername = ownerUsername;
+    }
+
     public void setOwner(String owner) {
         this.owner = owner;
     }
@@ -194,6 +200,4 @@ public class BookDTO {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
-    // Other getters and setters...
 }

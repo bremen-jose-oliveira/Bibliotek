@@ -1,6 +1,5 @@
 package com.Bibliotek.personal.controller.Book;
 
-
 import com.Bibliotek.personal.apiResponse.ApiResponse;
 import com.Bibliotek.personal.dto.BookDTO;
 import com.Bibliotek.personal.service.BookService;
@@ -24,6 +23,7 @@ public class BookController {
     public BookController(BookService bookService) {
         this.bookService = bookService;
     }
+
     @GetMapping
     public ResponseEntity<List<BookDTO>> getAllBooks() {
         List<BookDTO> books = bookService.getAllBooks();
@@ -35,8 +35,6 @@ public class BookController {
         BookDTO book = bookService.getBookById(id);
         return (book != null) ? new ResponseEntity<>(book, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
-
 
     @PostMapping // Create a new book
     public ResponseEntity<BookDTO> createBook(@RequestBody BookDTO bookDTO) {
@@ -61,8 +59,6 @@ public class BookController {
         return new ResponseEntity<>(updatedBook, HttpStatus.OK);
     }
 
-
-
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteBook(@PathVariable Integer id) {
         boolean success = bookService.deleteBook(id);
@@ -80,7 +76,7 @@ public class BookController {
         List<BookDTO> userBooks = bookService.getBooksByOwner(username);
         return new ResponseEntity<>(userBooks, HttpStatus.OK);
     }
-    // New Route 1: Get books of the owner with reading status
+
     @GetMapping("/my/with-status")
     public ResponseEntity<List<BookDTO>> getBooksForCurrentUserWithStatus() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -89,12 +85,11 @@ public class BookController {
         return new ResponseEntity<>(userBooks, HttpStatus.OK);
     }
 
-    // New Route 2: Get full details of a book by ID
     @GetMapping("/details/{id}")
     public ResponseEntity<BookDTO> getBookDetails(@PathVariable Integer id) {
         BookDTO bookDetails = bookService.getFullBookDetails(id);
-        return (bookDetails != null) ? new ResponseEntity<>(bookDetails, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return (bookDetails != null) ? new ResponseEntity<>(bookDetails, HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
 
 }

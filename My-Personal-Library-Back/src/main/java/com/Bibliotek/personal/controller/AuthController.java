@@ -1,6 +1,5 @@
 package com.Bibliotek.personal.controller;
 
-
 import com.Bibliotek.personal.config.JwtUtil;
 import com.Bibliotek.personal.dto.user.UserDTO;
 import com.Bibliotek.personal.entity.PasswordResetToken;
@@ -48,8 +47,8 @@ public class AuthController {
             userService.sendPasswordResetEmail(email);
             return ResponseEntity.ok(Collections.singletonMap("message", "Reset email sent!"));
         } catch (Exception e) {
-            e.printStackTrace(); // Debugging
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.singletonMap("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("error", e.getMessage()));
         }
     }
 
@@ -58,13 +57,12 @@ public class AuthController {
         String token = request.get("token");
         String newPassword = request.get("password");
 
-        // Validate Token
         PasswordResetToken resetToken = userService.validatePasswordResetToken(token);
         if (resetToken == null || resetToken.isExpired()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.singletonMap("error", "Invalid or expired token"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("error", "Invalid or expired token"));
         }
 
-        // Update Password
         userService.updateUserPassword(resetToken.getUser(), newPassword);
         return ResponseEntity.ok(Collections.singletonMap("message", "Password updated successfully!"));
     }
@@ -75,14 +73,13 @@ public class AuthController {
             String accessToken = request.get("accessToken");
             if (accessToken == null || accessToken.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Collections.singletonMap("error", "Access token is required"));
+                        .body(Collections.singletonMap("error", "Access token is required"));
             }
 
-            // Validate token and get user info from Google
             Map<String, String> googleUserInfo = validateGoogleToken(accessToken);
             if (googleUserInfo == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Collections.singletonMap("error", "Invalid Google access token"));
+                        .body(Collections.singletonMap("error", "Invalid Google access token"));
             }
 
             String email = googleUserInfo.get("email");
@@ -90,41 +87,33 @@ public class AuthController {
 
             if (email == null || email.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Collections.singletonMap("error", "Email not provided by Google"));
+                        .body(Collections.singletonMap("error", "Email not provided by Google"));
             }
 
-            // Get Google user ID from token (if available)
             String googleUserId = googleUserInfo.get("id");
-            
-            // Find or create user
+
             User user = userService.findByEmail(email);
             if (user == null) {
-                // Create new user
                 user = new User();
                 user.setEmail(email);
                 user.setUsername(name != null && !name.isEmpty() ? name : email.split("@")[0]);
-                // Set Google provider ID
                 if (googleUserId != null && !googleUserId.isEmpty()) {
                     user.setOauthProviderId("google:" + googleUserId);
                 }
-                // Generate a secure random password for OAuth users
                 String randomPassword = "OAuth" + System.currentTimeMillis() + Math.random();
                 user.setPassword(new BCryptPasswordEncoder().encode(randomPassword));
                 userService.save(user);
             } else {
-                // Update existing user with Google provider ID if not set
-                if ((user.getOauthProviderId() == null || user.getOauthProviderId().isEmpty()) 
-                    && googleUserId != null && !googleUserId.isEmpty()) {
+                if ((user.getOauthProviderId() == null || user.getOauthProviderId().isEmpty())
+                        && googleUserId != null && !googleUserId.isEmpty()) {
                     user.setOauthProviderId("google:" + googleUserId);
                     userService.save(user);
                 }
             }
 
-            // Generate JWT token
             String token = jwtUtil.generateToken(email);
             UserDTO userDTO = UserMapper.toDTO(user);
 
-            // Return token and user
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
             response.put("user", userDTO);
@@ -132,9 +121,8 @@ public class AuthController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Collections.singletonMap("error", "Authentication failed: " + e.getMessage()));
+                    .body(Collections.singletonMap("error", "Authentication failed: " + e.getMessage()));
         }
     }
 
@@ -148,71 +136,55 @@ public class AuthController {
 
             if (identityToken == null || identityToken.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Collections.singletonMap("error", "Identity token is required"));
+                        .body(Collections.singletonMap("error", "Identity token is required"));
             }
 
-            // Decode and validate Apple identity token
             Map<String, String> appleUserInfo = validateAppleToken(identityToken);
             if (appleUserInfo == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Collections.singletonMap("error", "Invalid Apple identity token"));
+                        .body(Collections.singletonMap("error", "Invalid Apple identity token"));
             }
 
             String email = appleUserInfo.get("email");
             String name = appleUserInfo.get("name");
 
-            // Extract Apple user ID from token (sub claim) or from request
             String appleSubId = appleUserInfo.get("sub");
             if (appleSubId == null || appleSubId.isEmpty()) {
-                appleSubId = appleUserId; // Fallback to user parameter
+                appleSubId = appleUserId;
             }
-            
-            // Apple may not always provide email in token (especially on subsequent logins)
-            // Use the email from token if available, otherwise try to find user by Apple user ID
+
             User user = null;
             if (email != null && !email.isEmpty()) {
                 user = userService.findByEmail(email);
             }
-            
-            // If user not found by email, try to find by Apple provider ID
-            if (user == null && appleSubId != null && !appleSubId.isEmpty()) {
-                // Note: This requires a findByOauthProviderId method in UserService
-                // For now, we'll create/find by email only
-            }
 
             if (user == null) {
-                // Create new user
                 user = new User();
                 if (email != null && !email.isEmpty()) {
                     user.setEmail(email);
                 } else {
-                    // Generate a placeholder email if not provided
-                    user.setEmail("apple_" + (appleSubId != null ? appleSubId : System.currentTimeMillis()) + "@apple.oauth");
+                    user.setEmail(
+                            "apple_" + (appleSubId != null ? appleSubId : System.currentTimeMillis()) + "@apple.oauth");
                 }
-                user.setUsername(name != null && !name.isEmpty() ? name : 
-                    (email != null ? email.split("@")[0] : "AppleUser"));
-                // Set Apple provider ID
+                user.setUsername(
+                        name != null && !name.isEmpty() ? name : (email != null ? email.split("@")[0] : "AppleUser"));
                 if (appleSubId != null && !appleSubId.isEmpty()) {
                     user.setOauthProviderId("apple:" + appleSubId);
                 }
-                // Generate a secure random password for OAuth users
                 String randomPassword = "OAuth" + System.currentTimeMillis() + Math.random();
                 user.setPassword(new BCryptPasswordEncoder().encode(randomPassword));
                 userService.save(user);
             } else {
-                // Update existing user with Apple provider ID if not set
-                if ((user.getOauthProviderId() == null || user.getOauthProviderId().isEmpty()) 
-                    && appleSubId != null && !appleSubId.isEmpty()) {
+                if ((user.getOauthProviderId() == null || user.getOauthProviderId().isEmpty())
+                        && appleSubId != null && !appleSubId.isEmpty()) {
                     user.setOauthProviderId("apple:" + appleSubId);
                     userService.save(user);
                 }
             }
 
-            // Generate JWT token
             String token = jwtUtil.generateToken(user.getEmail());
             UserDTO userDTO = UserMapper.toDTO(user);
 
-            // Return token and user
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
             response.put("user", userDTO);
@@ -220,9 +192,8 @@ public class AuthController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Collections.singletonMap("error", "Authentication failed: " + e.getMessage()));
+                    .body(Collections.singletonMap("error", "Authentication failed: " + e.getMessage()));
         }
     }
 
@@ -238,7 +209,6 @@ public class AuthController {
 
             int responseCode = conn.getResponseCode();
             if (responseCode != 200) {
-                System.err.println("Google API returned: " + responseCode);
                 return null;
             }
 
@@ -271,25 +241,20 @@ public class AuthController {
      */
     private Map<String, String> validateAppleToken(String identityToken) {
         try {
-            // Decode JWT without verification (for now)
-            // In production, you should verify the signature using Apple's public keys
             String[] parts = identityToken.split("\\.");
             if (parts.length != 3) {
                 return null;
             }
 
-            // Decode the payload (second part)
             String payload = new String(java.util.Base64.getUrlDecoder().decode(parts[1]));
             JsonNode claims = objectMapper.readTree(payload);
 
             Map<String, String> userInfo = new HashMap<>();
-            
-            // Extract email from token
+
             if (claims.has("email")) {
                 userInfo.put("email", claims.get("email").asText());
             }
 
-            // Extract name if available (usually in the first login)
             if (claims.has("name")) {
                 JsonNode nameNode = claims.get("name");
                 if (nameNode.isObject()) {
@@ -302,7 +267,6 @@ public class AuthController {
                 }
             }
 
-            // Extract subject (Apple user ID)
             if (claims.has("sub")) {
                 userInfo.put("sub", claims.get("sub").asText());
             }
@@ -310,7 +274,6 @@ public class AuthController {
             return userInfo;
 
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }

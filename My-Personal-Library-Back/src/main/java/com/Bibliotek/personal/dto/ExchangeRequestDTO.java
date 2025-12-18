@@ -4,15 +4,14 @@ public class ExchangeRequestDTO {
     private int borrowerId;
     private int bookId;
 
-    // Constructors
-    public ExchangeRequestDTO() {}
+    public ExchangeRequestDTO() {
+    }
 
     public ExchangeRequestDTO(int borrowerId, int bookId) {
         this.borrowerId = borrowerId;
         this.bookId = bookId;
     }
 
-    // Getters and Setters
     public int getBorrowerId() {
         return borrowerId;
     }

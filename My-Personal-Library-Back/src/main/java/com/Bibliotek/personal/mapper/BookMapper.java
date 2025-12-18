@@ -18,13 +18,12 @@ public class BookMapper {
         bookDTO.setCover(book.getBookDetails().getCover());
         bookDTO.setDescription(book.getBookDetails().getDescription());
         bookDTO.setOwner(book.getOwner().getEmail());
+        bookDTO.setOwnerUsername(book.getOwner().getUsername());
 
-        // ✅ Ensure `readingStatus` is mapped correctly
         if (book.getReadingStatus() != null) {
-            bookDTO.setReadingStatus(book.getReadingStatus().name()); // ✅ Convert Enum to String
+            bookDTO.setReadingStatus(book.getReadingStatus().name());
         }
 
-        // ✅ Ensure `exchangeStatus` is mapped correctly
         if (book.getExchangeStatus() != null) {
             bookDTO.setExchangeStatus(book.getExchangeStatus().name());
         }
@@ -32,7 +31,6 @@ public class BookMapper {
         return bookDTO;
     }
 
-    // Convert BookDTO to Book entity
     public static Book toEntity(User owner, BookDetails bookDetails) {
         return new Book(bookDetails, owner);
     }

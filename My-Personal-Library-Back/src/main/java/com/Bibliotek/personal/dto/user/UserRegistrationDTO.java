@@ -5,10 +5,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @CrossOrigin(origins = "*")
 public class UserRegistrationDTO {
     private String email;
-    private String username; // Optional for registration
-    private String password; // Password for registration
+    private String username;
+    private String password;
 
-    // Getters and Setters
     public String getEmail() {
         return email;
     }

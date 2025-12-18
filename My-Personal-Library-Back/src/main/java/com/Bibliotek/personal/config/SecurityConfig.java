@@ -1,7 +1,5 @@
 package com.Bibliotek.personal.config;
 
-
-
 import com.Bibliotek.personal.service.CustomOAuth2UserService;
 import com.Bibliotek.personal.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +24,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
 import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -34,7 +33,8 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     public JwtUtil jwtUtil;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter, JwtUtil jwtUtil) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter,
+            JwtUtil jwtUtil) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.jwtUtil = jwtUtil;
@@ -46,7 +46,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList(FrontEndUrl, "http://localhost:8081","myapp://redirect","/oauth2/authorization/google","https://appleid.apple.com"));
+        config.setAllowedOrigins(Arrays.asList(FrontEndUrl, "http://localhost:8081", "myapp://redirect",
+                "/oauth2/authorization/google", "https://appleid.apple.com"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
 
@@ -62,8 +63,8 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder =
-                http.getSharedObject(AuthenticationManagerBuilder.class);
+        AuthenticationManagerBuilder authenticationManagerBuilder = http
+                .getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder.userDetailsService(userDetailsService)
                 .passwordEncoder(passwordEncoder());
         return authenticationManagerBuilder.build();
@@ -76,14 +77,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Disable CSRF protection
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/login").permitAll()
-                        .requestMatchers( "/oauth2/**").permitAll()
+                        .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/api/users/create").permitAll()
                         .requestMatchers("/api/users/oauth2-login").permitAll()
                         .requestMatchers("/oauth2/authorization/**").permitAll()
                         .requestMatchers("/oauth2/authorization/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-
-
 
                         .anyRequest().authenticated() // Protect all other endpoints
                 )
@@ -96,21 +95,14 @@ public class SecurityConfig {
                         .successHandler((request, response, authentication) -> {
                             OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
-                            System.out.println("\n\n" + "oAuth2User  ----->" + oAuth2User + "\n\n");
-
-
                             String email = oAuth2User.getAttribute("email");
                             String username = oAuth2User.getAttribute("name");
 
-                            // Generate the JWT token
                             String token = jwtUtil.generateToken(email);
-                            System.out.println("Login successful for user: " + username + " with token: " + token);
 
-                            // Redirect to frontend with the token as a query parameter
-
-                            String redirectUrl = FrontEndUrl+"/(tabs)" + "?token=" + token;
-                                    String jsonResponse = "{\"token\":\"" + token + "\"}";
-                                    response.getWriter().write(jsonResponse);
+                            String redirectUrl = FrontEndUrl + "/(tabs)" + "?token=" + token;
+                            String jsonResponse = "{\"token\":\"" + token + "\"}";
+                            response.getWriter().write(jsonResponse);
 
                             response.sendRedirect(redirectUrl);
                             response.getWriter().flush();
@@ -118,7 +110,6 @@ public class SecurityConfig {
                         })
 
                 )
-
 
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // Add JWT filter
                 .httpBasic(withDefaults()); // Enable HTTP Basic authentication
@@ -131,6 +122,5 @@ public class SecurityConfig {
 
         return new CustomOAuth2UserService(userDetailsService);
     }
-
 
 }

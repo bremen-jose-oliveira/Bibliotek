@@ -28,11 +28,9 @@ public class Book {
     @OneToMany(mappedBy = "book", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Exchange> exchanges;
 
-    // ✅ Added Reading Status (Enum)
     @Enumerated(EnumType.STRING)
     private UserBookStatus.BookStatus readingStatus;
 
-    // ✅ Added Exchange Status (Enum)
     @Enumerated(EnumType.STRING)
     private Exchange.ExchangeStatus exchangeStatus;
 
@@ -42,7 +40,9 @@ public class Book {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    public Book() {}
+    public Book() {
+    }
+
     public boolean isOwnedBy(User user) {
         return Objects.equals(this.owner.getId(), user.getId());
     }
@@ -108,7 +108,6 @@ public class Book {
         this.updatedAt = updatedAt;
     }
 
-    // ✅ Getters & Setters for Reading and Exchange Status
     public UserBookStatus.BookStatus getReadingStatus() {
         return readingStatus;
     }

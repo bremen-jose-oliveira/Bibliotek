@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @CrossOrigin(origins = "*")
 public class LoginRequest {
     private String email;
-    private String password; // Password for login
+    private String password;
 
     public LoginRequest() {
     }
@@ -15,7 +15,6 @@ public class LoginRequest {
         this.password = password;
     }
 
-    // Getters and Setters
     public String getEmail() {
         return email;
     }

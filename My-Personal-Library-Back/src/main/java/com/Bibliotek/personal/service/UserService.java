@@ -26,8 +26,6 @@ public class UserService {
     private static final String API_KEY = "your-mailgun-api-key";
     private final UserRepository userRepository;
 
-
-
     @Value("${FrontEnd.url}")
     private String FrontEndUrl;
 
@@ -52,7 +50,6 @@ public class UserService {
                 .toList();
     }
 
-
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -61,45 +58,33 @@ public class UserService {
         Optional<User> user = userRepository.findById(id);
         return user.map(UserMapper::toDTO).orElse(null);
     }
-    public List<UserDTO> getUsersByEmailOrUsername(String search) {
-        // Call the updated repository query method
-        List<User> users = userRepository.findByUsernameOrEmailContaining(search);
 
-        // Convert User entities to UserDTOs
+    public List<UserDTO> getUsersByEmailOrUsername(String search) {
+        List<User> users = userRepository.findByUsernameOrEmailContaining(search);
         return users.stream().map(UserMapper::toDTO).collect(Collectors.toList());
     }
 
-
-
-
-
     public UserDTO createUser(UserRegistrationDTO userDTO) {
-        // Check if user exists by email
         User existingUser = userRepository.findByEmail(userDTO.getEmail());
         if (existingUser != null) {
             throw new RuntimeException("User with this email already exists");
         }
 
-        // Convert DTO to Entity
         User user = new User();
         user.setEmail(userDTO.getEmail());
         user.setUsername(userDTO.getUsername());
 
-        // Handle password (required for regular users)
         if (userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
-            String defaultPassword = "OAuthGeneratedPassword123"; // Fallback for OAuth users
+            String defaultPassword = "OAuthGeneratedPassword123";
             user.setPassword(new BCryptPasswordEncoder().encode(defaultPassword));
         } else {
             user.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword()));
         }
 
-
         userRepository.save(user);
-
 
         return UserMapper.toDTO(user);
     }
-
 
     public UserDTO updateUser(int id, UserDTO userDTO) {
         Optional<User> existingUser = userRepository.findById(id);
@@ -138,20 +123,16 @@ public class UserService {
     public boolean sendPasswordResetEmail(String email) {
         User user = userRepository.findByEmail(email);
 
-        if (user == null) return false; // User not found
+        if (user == null)
+            return false;
 
-
-
-        // Generate reset token
         String token = UUID.randomUUID().toString();
-
 
         PasswordResetToken resetToken = new PasswordResetToken(user, token);
 
         tokenRepository.save(resetToken);
 
-
-        String resetLink = FrontEndUrl+"/reset-password?token=" + token;
+        String resetLink = FrontEndUrl + "/reset-password?token=" + token;
 
         String subject = "Reset Your Password";
         String body = "Click here to reset your password: " + resetLink;
@@ -170,11 +151,11 @@ public class UserService {
             mailSender.send(message);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
 
     }
+
     public PasswordResetToken validatePasswordResetToken(String token) {
         return tokenRepository.findByToken(token);
     }
@@ -184,8 +165,5 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
-
-
-
 
 }

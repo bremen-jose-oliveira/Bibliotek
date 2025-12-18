@@ -57,17 +57,14 @@ public class BookService {
     }
 
     public BookDTO createBook(BookDTO bookDTO, String email) {
-        // Retrieve the user (owner)
         User owner = userRepository.findByEmail(email);
         if (owner == null) {
             throw new RuntimeException("User not found with email: " + email);
         }
 
-        // Check if BookDetails already exists by ISBN
         String isbn = bookDTO.getIsbn();
         BookDetails bookDetails = bookDetailsRepository.findByIsbn(isbn)
                 .orElseGet(() -> {
-                    // If not found, create new BookDetails
                     BookDetails newDetails = new BookDetails();
                     newDetails.setIsbn(bookDTO.getIsbn());
                     newDetails.setTitle(bookDTO.getTitle());
@@ -78,9 +75,6 @@ public class BookService {
                     newDetails.setDescription(bookDTO.getDescription());
                     return bookDetailsRepository.save(newDetails);
                 });
-
-        // Update existing BookDetails with missing information (similar to updateBook
-        // logic)
         boolean needsUpdate = false;
         if (bookDTO.getTitle() != null && !bookDTO.getTitle().trim().isEmpty() &&
                 (bookDetails.getTitle() == null || bookDetails.getTitle().trim().isEmpty())) {
@@ -111,7 +105,6 @@ public class BookService {
             bookDetailsRepository.save(bookDetails);
         }
 
-        // Convert DTO to entity
         Book book = BookMapper.toEntity(owner, bookDetails);
         Book savedBook = bookRepository.save(book);
 
@@ -131,12 +124,10 @@ public class BookService {
 
         Book book = existingBookOpt.get();
 
-        // ✅ Ensure only the book owner can update it
         if (!Objects.equals(book.getOwner().getId(), owner.getId())) {
             throw new RuntimeException("Unauthorized: You are not the owner of this book.");
         }
 
-        // ✅ Update `readingStatus` only if it's provided
         if (bookDTO.getReadingStatus() != null) {
             try {
                 book.setReadingStatus(UserBookStatus.BookStatus.valueOf(bookDTO.getReadingStatus()));
@@ -145,9 +136,9 @@ public class BookService {
             }
         }
 
-        bookRepository.save(book); // ✅ Ensure update is saved
+        bookRepository.save(book);
 
-        return BookMapper.toDTO(book); // ✅ Ensure correct mapping
+        return BookMapper.toDTO(book);
     }
 
     public boolean deleteBook(int id) {
@@ -188,15 +179,13 @@ public class BookService {
 
         Book book = bookOptional.get();
 
-        // Convert Book entity to BookDTO
         BookDTO bookDTO = BookMapper.toDTO(book);
 
-        // Fetch and map exchanges for the book
         List<ExchangeDTO> exchangeDTOs = book.getExchanges().stream()
                 .map(ExchangeMapper::toDTO)
                 .collect(Collectors.toList());
 
-        bookDTO.setExchanges(exchangeDTOs); // Set the exchanges in the BookDTO
+        bookDTO.setExchanges(exchangeDTOs);
 
         return bookDTO;
     }
@@ -209,15 +198,13 @@ public class BookService {
 
         Book book = bookOptional.get();
 
-        // Convert Book entity to BookDTO
         BookDTO bookDTO = BookMapper.toDTO(book);
 
-        // Fetch and map reviews for the book
         List<ReviewDTO> reviewDTOs = book.getReviews().stream()
                 .map(ReviewMapper::toDTO)
                 .collect(Collectors.toList());
 
-        bookDTO.setReviews(reviewDTOs); // Set the reviews in the BookDTO
+        bookDTO.setReviews(reviewDTOs);
 
         return bookDTO;
     }
@@ -228,10 +215,10 @@ public class BookService {
             return List.of();
 
         return bookRepository.findByOwner(user).stream().map(book -> {
-            BookDTO bookDTO = BookMapper.toDTO(book); // Convert Book -> BookDTO
+            BookDTO bookDTO = BookMapper.toDTO(book);
             Optional<UserBookStatus.BookStatus> status = userBookStatusService.getBookStatus(user.getId(),
                     book.getId());
-            status.ifPresent(s -> bookDTO.setReadingStatus(s.name())); // Set reading status
+            status.ifPresent(s -> bookDTO.setReadingStatus(s.name()));
             return bookDTO;
         }).collect(Collectors.toList());
     }
@@ -245,7 +232,6 @@ public class BookService {
         BookDTO bookDTO = BookMapper.toDTO(book);
         bookDTO.setOwner(book.getOwner().getEmail());
 
-        // Fetch and attach reviews
         List<ReviewDTO> reviewDTOs = reviewRepository.findReviewsByBook(book)
                 .stream()
                 .map(ReviewMapper::toDTO)

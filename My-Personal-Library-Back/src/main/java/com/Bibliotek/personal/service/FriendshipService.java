@@ -1,6 +1,5 @@
 package com.Bibliotek.personal.service;
 
-
 import com.Bibliotek.personal.dto.FriendshipDTO;
 import com.Bibliotek.personal.entity.Friendship;
 import com.Bibliotek.personal.entity.User;
@@ -30,11 +29,9 @@ public class FriendshipService {
         User user = userRepository.findByEmail(userEmail);
         User friend = userRepository.findByEmail(friendEmail);
 
-
         if (user == null || friend == null || user.equals(friend)) {
             return false;
         }
-
 
         Optional<Friendship> existingFriendship = friendshipRepository.findByUserAndFriend(user, friend);
         Optional<Friendship> reverseFriendship = friendshipRepository.findByUserAndFriend(friend, user);
@@ -42,7 +39,6 @@ public class FriendshipService {
         if (existingFriendship.isPresent() || reverseFriendship.isPresent()) {
             return false; // Friendship already exists
         }
-
 
         Friendship friendship = new Friendship();
         friendship.setUser(user);
@@ -55,7 +51,6 @@ public class FriendshipService {
 
     }
 
-
     public boolean approveFriendRequest(String userEmail, String friendEmail) {
         User user = userRepository.findByEmail(userEmail);
         User friend = userRepository.findByEmail(friendEmail);
@@ -65,7 +60,8 @@ public class FriendshipService {
         }
 
         Optional<Friendship> friendshipOptional = friendshipRepository.findByUserAndFriend(friend, user);
-        if (friendshipOptional.isPresent() && friendshipOptional.get().getStatus() == Friendship.FriendshipStatus.PENDING) {
+        if (friendshipOptional.isPresent()
+                && friendshipOptional.get().getStatus() == Friendship.FriendshipStatus.PENDING) {
             Friendship friendship = friendshipOptional.get();
             friendship.setStatus(Friendship.FriendshipStatus.ACCEPTED);
             friendshipRepository.save(friendship);
@@ -83,7 +79,8 @@ public class FriendshipService {
         }
 
         Optional<Friendship> friendshipOptional = friendshipRepository.findByUserAndFriend(friend, user);
-        if (friendshipOptional.isPresent() && friendshipOptional.get().getStatus() == Friendship.FriendshipStatus.PENDING) {
+        if (friendshipOptional.isPresent()
+                && friendshipOptional.get().getStatus() == Friendship.FriendshipStatus.PENDING) {
             friendshipRepository.delete(friendshipOptional.get());
             return true;
         }
@@ -112,7 +109,6 @@ public class FriendshipService {
                 .collect(Collectors.toList());
     }
 
-
     public boolean removeFriend(Integer id) {
         Optional<Friendship> friendshipOptional = friendshipRepository.findById(id);
 
@@ -123,14 +119,15 @@ public class FriendshipService {
 
         return false;
     }
-    // In FriendshipService.java
+
     public List<FriendshipDTO> getIncomingFriendRequests(String userEmail) {
         User user = userRepository.findByEmail(userEmail);
         if (user == null) {
             return List.of();
         }
 
-        List<Friendship> incomingRequests = friendshipRepository.findAllByFriendAndStatus(user, Friendship.FriendshipStatus.PENDING);
+        List<Friendship> incomingRequests = friendshipRepository.findAllByFriendAndStatus(user,
+                Friendship.FriendshipStatus.PENDING);
 
         return incomingRequests.stream()
                 .map(f -> new FriendshipDTO(
@@ -143,7 +140,5 @@ public class FriendshipService {
                         f.getUpdatedAt()))
                 .collect(Collectors.toList());
     }
-
-
 
 }
