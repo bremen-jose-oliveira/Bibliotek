@@ -1,7 +1,5 @@
 package com.Bibliotek.personal.dto;
 
-
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,6 +11,7 @@ public class BookDTO {
     private int year;
     private String publisher;
     private String cover;
+    private String description;
     private String owner;
 
     // New Fields for Statuses
@@ -25,12 +24,12 @@ public class BookDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-
     public BookDTO() {
     }
 
-
-    public BookDTO(int id, String isbn, String title, String author, int year, String publisher, String cover, String owner, String readingStatus, String exchangeStatus, int reviewCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public BookDTO(int id, String isbn, String title, String author, int year, String publisher, String cover,
+            String owner, String readingStatus, String exchangeStatus, int reviewCount, LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
         this.id = id;
         this.isbn = isbn;
         this.title = title;
@@ -47,7 +46,9 @@ public class BookDTO {
     }
 
     // Constructor for full details (for `/books/{id}` endpoint)
-    public BookDTO(int id, String isbn, String title, String author, int year, String publisher, String cover, String owner, String readingStatus, String exchangeStatus, List<ReviewDTO> reviews, List<ExchangeDTO> exchanges, int reviewCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public BookDTO(int id, String isbn, String title, String author, int year, String publisher, String cover,
+            String owner, String readingStatus, String exchangeStatus, List<ReviewDTO> reviews,
+            List<ExchangeDTO> exchanges, int reviewCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.isbn = isbn;
         this.title = title;
@@ -64,7 +65,6 @@ public class BookDTO {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
-
 
     // Getters and Setters
     public List<ReviewDTO> getReviews() {
@@ -139,6 +139,14 @@ public class BookDTO {
         this.cover = cover;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getOwner() {
         return owner;
     }
@@ -189,5 +197,3 @@ public class BookDTO {
 
     // Other getters and setters...
 }
-
-

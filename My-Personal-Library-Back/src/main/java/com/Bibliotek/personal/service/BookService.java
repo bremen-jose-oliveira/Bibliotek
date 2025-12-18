@@ -1,6 +1,5 @@
 package com.Bibliotek.personal.service;
 
-
 import com.Bibliotek.personal.dto.BookDTO;
 import com.Bibliotek.personal.dto.ExchangeDTO;
 import com.Bibliotek.personal.dto.ReviewDTO;
@@ -33,7 +32,10 @@ public class BookService {
     private final UserBookStatusRepository userBookStatusRepository;
 
     @Autowired
-    public BookService(BookRepository bookRepository, UserRepository userRepository, BookDetailsRepository bookDetailsRepository, ReviewRepository reviewRepository, ExchangeRepository exchangeRepository, UserBookStatusService userBookStatusService, UserBookStatusRepository userBookStatusRepository) {
+    public BookService(BookRepository bookRepository, UserRepository userRepository,
+            BookDetailsRepository bookDetailsRepository, ReviewRepository reviewRepository,
+            ExchangeRepository exchangeRepository, UserBookStatusService userBookStatusService,
+            UserBookStatusRepository userBookStatusRepository) {
         this.bookRepository = bookRepository;
         this.userRepository = userRepository;
         this.bookDetailsRepository = bookDetailsRepository;
@@ -42,8 +44,6 @@ public class BookService {
         this.userBookStatusService = userBookStatusService;
         this.userBookStatusRepository = userBookStatusRepository;
     }
-
-
 
     public List<BookDTO> getAllBooks() {
         return bookRepository.findAll().stream()
@@ -75,8 +75,41 @@ public class BookService {
                     newDetails.setYear(bookDTO.getYear());
                     newDetails.setPublisher(bookDTO.getPublisher());
                     newDetails.setCover(bookDTO.getCover());
+                    newDetails.setDescription(bookDTO.getDescription());
                     return bookDetailsRepository.save(newDetails);
                 });
+
+        // Update existing BookDetails with missing information (similar to updateBook
+        // logic)
+        boolean needsUpdate = false;
+        if (bookDTO.getTitle() != null && !bookDTO.getTitle().trim().isEmpty() &&
+                (bookDetails.getTitle() == null || bookDetails.getTitle().trim().isEmpty())) {
+            bookDetails.setTitle(bookDTO.getTitle());
+            needsUpdate = true;
+        }
+        if (bookDTO.getAuthor() != null && !bookDTO.getAuthor().trim().isEmpty() &&
+                (bookDetails.getAuthor() == null || bookDetails.getAuthor().trim().isEmpty())) {
+            bookDetails.setAuthor(bookDTO.getAuthor());
+            needsUpdate = true;
+        }
+        if (bookDTO.getPublisher() != null && !bookDTO.getPublisher().trim().isEmpty() &&
+                (bookDetails.getPublisher() == null || bookDetails.getPublisher().trim().isEmpty())) {
+            bookDetails.setPublisher(bookDTO.getPublisher());
+            needsUpdate = true;
+        }
+        if (bookDTO.getCover() != null && !bookDTO.getCover().trim().isEmpty() &&
+                (bookDetails.getCover() == null || bookDetails.getCover().trim().isEmpty())) {
+            bookDetails.setCover(bookDTO.getCover());
+            needsUpdate = true;
+        }
+        if (bookDTO.getDescription() != null && !bookDTO.getDescription().trim().isEmpty() &&
+                (bookDetails.getDescription() == null || bookDetails.getDescription().trim().isEmpty())) {
+            bookDetails.setDescription(bookDTO.getDescription());
+            needsUpdate = true;
+        }
+        if (needsUpdate) {
+            bookDetailsRepository.save(bookDetails);
+        }
 
         // Convert DTO to entity
         Book book = BookMapper.toEntity(owner, bookDetails);
@@ -133,8 +166,6 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
-
-
     public List<BookDTO> getBooksByOwnerWithDetails(String email) {
         User user = userRepository.findByEmail(email);
         List<Book> books = bookRepository.findByOwner(user);
@@ -186,28 +217,29 @@ public class BookService {
                 .map(ReviewMapper::toDTO)
                 .collect(Collectors.toList());
 
-        bookDTO.setReviews(reviewDTOs);  // Set the reviews in the BookDTO
+        bookDTO.setReviews(reviewDTOs); // Set the reviews in the BookDTO
 
         return bookDTO;
     }
 
-
     public List<BookDTO> getBooksByOwnerWithStatus(String email) {
         User user = userRepository.findByEmail(email);
-        if (user == null) return List.of();
+        if (user == null)
+            return List.of();
 
         return bookRepository.findByOwner(user).stream().map(book -> {
             BookDTO bookDTO = BookMapper.toDTO(book); // Convert Book -> BookDTO
-            Optional<UserBookStatus.BookStatus> status = userBookStatusService.getBookStatus(user.getId(), book.getId());
+            Optional<UserBookStatus.BookStatus> status = userBookStatusService.getBookStatus(user.getId(),
+                    book.getId());
             status.ifPresent(s -> bookDTO.setReadingStatus(s.name())); // Set reading status
             return bookDTO;
         }).collect(Collectors.toList());
     }
 
-
     public BookDTO getFullBookDetails(int bookId) {
         Optional<Book> bookOptional = bookRepository.findByIdWithReviews(bookId);
-        if (bookOptional.isEmpty()) return null;
+        if (bookOptional.isEmpty())
+            return null;
 
         Book book = bookOptional.get();
         BookDTO bookDTO = BookMapper.toDTO(book);
@@ -227,7 +259,5 @@ public class BookService {
 
         return bookDTO;
     }
-
-
 
 }

@@ -16,6 +16,8 @@ public class BookDetails {
     private int year;
     private String publisher;
     private String cover;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
     public BookDetails() {
     }
@@ -76,5 +78,12 @@ public class BookDetails {
         this.cover = cover;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
 }

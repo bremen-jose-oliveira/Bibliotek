@@ -5,7 +5,6 @@ import com.Bibliotek.personal.entity.Book;
 import com.Bibliotek.personal.entity.BookDetails;
 import com.Bibliotek.personal.entity.User;
 
-
 public class BookMapper {
 
     public static BookDTO toDTO(Book book) {
@@ -17,6 +16,7 @@ public class BookMapper {
         bookDTO.setYear(book.getBookDetails().getYear());
         bookDTO.setPublisher(book.getBookDetails().getPublisher());
         bookDTO.setCover(book.getBookDetails().getCover());
+        bookDTO.setDescription(book.getBookDetails().getDescription());
         bookDTO.setOwner(book.getOwner().getEmail());
 
         // ✅ Ensure `readingStatus` is mapped correctly
@@ -31,7 +31,6 @@ public class BookMapper {
 
         return bookDTO;
     }
-
 
     // Convert BookDTO to Book entity
     public static Book toEntity(User owner, BookDetails bookDetails) {
