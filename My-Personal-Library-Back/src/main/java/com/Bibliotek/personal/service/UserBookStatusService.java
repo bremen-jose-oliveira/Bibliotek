@@ -10,6 +10,7 @@ import com.Bibliotek.personal.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -51,5 +52,9 @@ public class UserBookStatusService {
 
     public Optional<UserBookStatus.BookStatus> getBookStatus(int userId, int bookId) {
         return userBookStatusRepository.findByUserIdAndBookId(userId, bookId).map(UserBookStatus::getStatus);
+    }
+    
+    public List<UserBookStatus> getAllStatusesForUser(int userId) {
+        return userBookStatusRepository.findByUserId(userId);
     }
 }

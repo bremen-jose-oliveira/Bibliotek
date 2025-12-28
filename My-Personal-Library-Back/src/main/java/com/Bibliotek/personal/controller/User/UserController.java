@@ -14,9 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import com.Bibliotek.personal.entity.User;
+
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -99,6 +105,60 @@ public class UserController {
             return ResponseEntity.ok(new JwtResponse(token));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PutMapping("/current/update")
+    public ResponseEntity<ApiResponse> updateCurrentUser(@RequestBody Map<String, String> request) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User user = userService.findByEmail(email);
+            if (user == null) {
+                return new ResponseEntity<>(new ApiResponse("User not found", false, 404), HttpStatus.NOT_FOUND);
+            }
+            
+            String username = request.get("username");
+            if (username != null && !username.trim().isEmpty()) {
+                user.setUsername(username);
+                userService.save(user);
+                return new ResponseEntity<>(new ApiResponse("Username updated successfully", true, 200), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new ApiResponse("Username cannot be empty", false, 400), HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ApiResponse(e.getMessage(), false, 500), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/current/update/password")
+    public ResponseEntity<ApiResponse> updateCurrentUserPassword(@RequestBody Map<String, String> request) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User user = userService.findByEmail(email);
+            if (user == null) {
+                return new ResponseEntity<>(new ApiResponse("User not found", false, 404), HttpStatus.NOT_FOUND);
+            }
+            
+            String oldPassword = request.get("oldPassword");
+            String newPassword = request.get("newPassword");
+            
+            if (oldPassword == null || newPassword == null) {
+                return new ResponseEntity<>(new ApiResponse("Old password and new password are required", false, 400), HttpStatus.BAD_REQUEST);
+            }
+            
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+                return new ResponseEntity<>(new ApiResponse("Old password is incorrect", false, 400), HttpStatus.BAD_REQUEST);
+            }
+            
+            userService.updateUserPassword(user, newPassword);
+            return new ResponseEntity<>(new ApiResponse("Password updated successfully", true, 200), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ApiResponse(e.getMessage(), false, 500), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
