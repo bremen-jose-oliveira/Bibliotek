@@ -21,4 +21,7 @@ public interface ExchangeRepository  extends JpaRepository<Exchange, Integer>{
     Optional<Exchange.ExchangeStatus> findStatusByBookId(@Param("bookId") int bookId);
 
     List<Exchange> findByBorrowerId(int userId);
+
+    @Query("SELECT e FROM Exchange e WHERE e.book.owner.id = :ownerId")
+    List<Exchange> findByBookOwnerId(@Param("ownerId") int ownerId);
 }

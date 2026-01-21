@@ -43,4 +43,16 @@ public class ExchangeController {
         return new ResponseEntity<>(exchanges, HttpStatus.OK);
     }
 
+    @GetMapping("/borrowed")
+    public ResponseEntity<List<Exchange>> getBorrowedBooks() {
+        List<Exchange> exchanges = exchangeService.getExchangesForLoggedInUser();
+        return new ResponseEntity<>(exchanges, HttpStatus.OK);
+    }
+
+    @GetMapping("/lending")
+    public ResponseEntity<List<Exchange>> getLendingBooks() {
+        List<Exchange> exchanges = exchangeService.getLendingExchangesForLoggedInUser();
+        return new ResponseEntity<>(exchanges, HttpStatus.OK);
+    }
+
 }

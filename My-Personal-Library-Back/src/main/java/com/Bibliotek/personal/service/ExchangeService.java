@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -50,6 +51,12 @@ public class ExchangeService {
                 .orElseThrow(() -> new ResourceNotFoundException("Exchange not found with ID: " + exchangeId));
 
         exchange.setStatus(status);
+        
+        // Set exchange date when status is ACCEPTED (book is actually borrowed/lent)
+        if (status == Exchange.ExchangeStatus.ACCEPTED && exchange.getExchangeDate() == null) {
+            exchange.setExchangeDate(LocalDate.now());
+        }
+        
         return exchangeRepository.save(exchange);
     }
 
@@ -66,6 +73,18 @@ public class ExchangeService {
         }
 
         return exchangeRepository.findByBorrowerId(user.getId());
+    }
+
+    public List<Exchange> getLendingExchangesForLoggedInUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
+        User user = userRepository.findByEmail(userEmail);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found with email: " + userEmail);
+        }
+
+        return exchangeRepository.findByBookOwnerId(user.getId());
     }
 
 }
