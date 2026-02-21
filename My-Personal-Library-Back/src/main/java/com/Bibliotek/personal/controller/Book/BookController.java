@@ -92,4 +92,9 @@ public class BookController {
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/user/{email}")
+    public ResponseEntity<List<BookDTO>> getBooksByUserEmail(@PathVariable String email) {
+        List<BookDTO> books = bookService.getBooksByOwner(email);
+        return new ResponseEntity<>(books, HttpStatus.OK);
+    }
 }

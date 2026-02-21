@@ -152,6 +152,9 @@ public class BookService {
 
     public List<BookDTO> getBooksByOwner(String email) {
         User user = userRepository.findByEmail(email);
+        if (user == null) {
+            return List.of();
+        }
         return bookRepository.findByOwner(user).stream()
                 .map(BookMapper::toDTO)
                 .collect(Collectors.toList());
