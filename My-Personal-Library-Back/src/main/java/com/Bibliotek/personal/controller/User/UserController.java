@@ -132,6 +132,22 @@ public class UserController {
         }
     }
 
+    @DeleteMapping("/current")
+    public ResponseEntity<ApiResponse> deleteCurrentUser() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            User user = userService.findByEmailIgnoreCase(email);
+            if (user == null) {
+                return new ResponseEntity<>(new ApiResponse("User not found", false, 404), HttpStatus.NOT_FOUND);
+            }
+            userService.deleteUser(user.getId());
+            return new ResponseEntity<>(new ApiResponse("Account deleted successfully", true, 200), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ApiResponse(e.getMessage(), false, 500), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PutMapping("/current/update/password")
     public ResponseEntity<ApiResponse> updateCurrentUserPassword(@RequestBody Map<String, String> request) {
         try {
