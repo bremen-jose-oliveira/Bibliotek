@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -15,28 +16,27 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-
-
     private static final String SECRET_KEY = "MYTOKENyourBase64EncodedSecretKey12345QWERTY"; // Use a strong Base64-encoded key
 
-
+    @Value("${Jwt.expiration-hours:24}")
+    private long expirationHours;
 
     public SecretKey getSecretKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-
     public String generateToken(String email) {
         Map<String, Object> claims = new HashMap<>();
+        long expirationMs = expirationHours * 60 * 60 * 1000L;
         return Jwts.builder()
                 .claims()
                 .add(claims)
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() +  1000 * 60 * 60)) // Adjust expiration time
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .and()
-                .signWith( getSecretKey())
+                .signWith(getSecretKey())
                 .compact();
     }
 

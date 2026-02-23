@@ -4,6 +4,7 @@ package com.Bibliotek.personal.service;
 import com.Bibliotek.personal.dto.ExchangeRequestDTO;
 import com.Bibliotek.personal.entity.Book;
 import com.Bibliotek.personal.entity.Exchange;
+import com.Bibliotek.personal.entity.Notification;
 import com.Bibliotek.personal.entity.User;
 import com.Bibliotek.personal.exception.ResourceNotFoundException;
 import com.Bibliotek.personal.repository.BookRepository;
@@ -23,12 +24,15 @@ public class ExchangeService {
     private final ExchangeRepository exchangeRepository;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
+    private final NotificationService notificationService;
 
     @Autowired
-    public ExchangeService(ExchangeRepository exchangeRepository, UserRepository userRepository, BookRepository bookRepository) {
+    public ExchangeService(ExchangeRepository exchangeRepository, UserRepository userRepository,
+                           BookRepository bookRepository, NotificationService notificationService) {
         this.exchangeRepository = exchangeRepository;
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
+        this.notificationService = notificationService;
     }
 
 
@@ -43,7 +47,22 @@ public class ExchangeService {
         newExchange.setBorrower(borrower);
         newExchange.setBook(book);
         newExchange.setStatus(Exchange.ExchangeStatus.REQUESTED);
-        return exchangeRepository.save(newExchange);
+        newExchange = exchangeRepository.save(newExchange);
+
+        User owner = book.getOwner();
+        String bookTitle = book.getBookDetails() != null ? book.getBookDetails().getTitle() : "a book";
+        if (owner != null) {
+            notificationService.createNotification(
+                    owner.getEmail(),
+                    Notification.NotificationType.EXCHANGE_REQUEST,
+                    "Borrow request",
+                    borrower.getUsername() + " wants to borrow \"" + bookTitle + "\"",
+                    borrower.getEmail(),
+                    book.getId(),
+                    newExchange.getId());
+        }
+
+        return newExchange;
     }
 
     public Exchange updateExchangeStatus(int exchangeId, Exchange.ExchangeStatus status) {
@@ -51,13 +70,41 @@ public class ExchangeService {
                 .orElseThrow(() -> new ResourceNotFoundException("Exchange not found with ID: " + exchangeId));
 
         exchange.setStatus(status);
-        
+
         // Set exchange date when status is ACCEPTED (book is actually borrowed/lent)
         if (status == Exchange.ExchangeStatus.ACCEPTED && exchange.getExchangeDate() == null) {
             exchange.setExchangeDate(LocalDate.now());
         }
-        
-        return exchangeRepository.save(exchange);
+
+        exchange = exchangeRepository.save(exchange);
+
+        User borrower = exchange.getBorrower();
+        Book book = exchange.getBook();
+        User owner = book != null ? book.getOwner() : null;
+        String ownerUsername = owner != null ? owner.getUsername() : "The owner";
+        String bookTitle = (book != null && book.getBookDetails() != null) ? book.getBookDetails().getTitle() : "the book";
+
+        if (status == Exchange.ExchangeStatus.ACCEPTED && borrower != null) {
+            notificationService.createNotification(
+                    borrower.getEmail(),
+                    Notification.NotificationType.EXCHANGE_ACCEPTED,
+                    "Borrow request accepted",
+                    ownerUsername + " accepted your request to borrow \"" + bookTitle + "\"",
+                    owner != null ? owner.getEmail() : null,
+                    book != null ? book.getId() : null,
+                    exchange.getId());
+        } else if (status == Exchange.ExchangeStatus.REJECTED && borrower != null) {
+            notificationService.createNotification(
+                    borrower.getEmail(),
+                    Notification.NotificationType.EXCHANGE_REJECTED,
+                    "Borrow request declined",
+                    ownerUsername + " declined your request to borrow \"" + bookTitle + "\"",
+                    owner != null ? owner.getEmail() : null,
+                    book != null ? book.getId() : null,
+                    exchange.getId());
+        }
+
+        return exchange;
     }
 
     public List<Exchange> getExchangesByUser(int userId) {

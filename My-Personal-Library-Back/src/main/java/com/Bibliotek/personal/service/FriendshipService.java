@@ -2,6 +2,7 @@ package com.Bibliotek.personal.service;
 
 import com.Bibliotek.personal.dto.FriendshipDTO;
 import com.Bibliotek.personal.entity.Friendship;
+import com.Bibliotek.personal.entity.Notification;
 import com.Bibliotek.personal.entity.User;
 import com.Bibliotek.personal.repository.FriendshipRepository;
 import com.Bibliotek.personal.repository.UserRepository;
@@ -18,11 +19,14 @@ import java.util.stream.Collectors;
 public class FriendshipService {
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
+    private final NotificationService notificationService;
 
     @Autowired
-    public FriendshipService(UserRepository userRepository, FriendshipRepository friendshipRepository) {
+    public FriendshipService(UserRepository userRepository, FriendshipRepository friendshipRepository,
+                             NotificationService notificationService) {
         this.userRepository = userRepository;
         this.friendshipRepository = friendshipRepository;
+        this.notificationService = notificationService;
     }
 
     public boolean sendFriendRequest(String userEmail, String friendEmail) {
@@ -47,6 +51,15 @@ public class FriendshipService {
 
         friendshipRepository.save(friendship);
 
+        notificationService.createNotification(
+                friend.getEmail(),
+                Notification.NotificationType.FRIEND_REQUEST,
+                "Friend request",
+                user.getUsername() + " sent you a friend request",
+                user.getEmail(),
+                null,
+                friendship.getId());
+
         return true;
 
     }
@@ -65,6 +78,16 @@ public class FriendshipService {
             Friendship friendship = friendshipOptional.get();
             friendship.setStatus(Friendship.FriendshipStatus.ACCEPTED);
             friendshipRepository.save(friendship);
+
+            notificationService.createNotification(
+                    friend.getEmail(),
+                    Notification.NotificationType.FRIEND_REQUEST_ACCEPTED,
+                    "Friend request accepted",
+                    user.getUsername() + " accepted your friend request",
+                    user.getEmail(),
+                    null,
+                    friendship.getId());
+
             return true;
         }
         return false;
@@ -99,13 +122,21 @@ public class FriendshipService {
         List<Friendship> friendships = friendshipRepository.findAllAcceptedFriendships(user);
 
         return friendships.stream()
-                .map(f -> new FriendshipDTO(
-                        f.getId(),
-                        f.getFriend().getUsername(),
-                        f.getFriend().getEmail(),
-                        f.getStatus().name(),
-                        f.getCreatedAt(),
-                        f.getUpdatedAt()))
+                .map(f -> {
+                    // When current user accepted someone else's request, row is (user=other, friend=currentUser).
+                    // When current user sent request that was accepted, row is (user=currentUser, friend=other).
+                    // Always show the "other" user's username/email, not the current user's.
+                    User other = f.getUser().getEmail().equalsIgnoreCase(currentUserEmail)
+                            ? f.getFriend()
+                            : f.getUser();
+                    return new FriendshipDTO(
+                            f.getId(),
+                            other.getUsername(),
+                            other.getEmail(),
+                            f.getStatus().name(),
+                            f.getCreatedAt(),
+                            f.getUpdatedAt());
+                })
                 .collect(Collectors.toList());
     }
 
