@@ -114,7 +114,7 @@ public class UserController {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String email = authentication.getName();
             
-            User user = userService.findByEmail(email);
+            User user = userService.findByEmailIgnoreCase(email);
             if (user == null) {
                 return new ResponseEntity<>(new ApiResponse("User not found", false, 404), HttpStatus.NOT_FOUND);
             }
@@ -138,7 +138,7 @@ public class UserController {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String email = authentication.getName();
             
-            User user = userService.findByEmail(email);
+            User user = userService.findByEmailIgnoreCase(email);
             if (user == null) {
                 return new ResponseEntity<>(new ApiResponse("User not found", false, 404), HttpStatus.NOT_FOUND);
             }

@@ -92,7 +92,7 @@ public class AuthController {
 
             String googleUserId = googleUserInfo.get("id");
 
-            User user = userService.findByEmail(email);
+            User user = userService.findByEmailIgnoreCase(email);
             if (user == null) {
                 user = new User();
                 user.setEmail(email);
@@ -155,7 +155,7 @@ public class AuthController {
 
             User user = null;
             if (email != null && !email.isEmpty()) {
-                user = userService.findByEmail(email);
+                user = userService.findByEmailIgnoreCase(email);
             }
 
             if (user == null) {

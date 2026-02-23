@@ -38,7 +38,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         String username = oAuth2User.getAttribute("name");
         String email = oAuth2User.getAttribute("email");
 
-        User user = userService.findByEmail(email);
+        User user = userService.findByEmailIgnoreCase(email);
         if (user == null) {
             user = new User();
             user.setUsername(username);

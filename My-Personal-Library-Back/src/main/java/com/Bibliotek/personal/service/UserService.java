@@ -138,7 +138,7 @@ public class UserService {
     }
 
     public boolean sendPasswordResetEmail(String email) {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
 
         if (user == null)
             return false;

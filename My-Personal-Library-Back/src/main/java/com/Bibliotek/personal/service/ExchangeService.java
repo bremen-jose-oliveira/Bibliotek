@@ -67,7 +67,7 @@ public class ExchangeService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
         if (user == null) {
             throw new ResourceNotFoundException("User not found with email: " + userEmail);
         }
@@ -79,7 +79,7 @@ public class ExchangeService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
         if (user == null) {
             throw new ResourceNotFoundException("User not found with email: " + userEmail);
         }

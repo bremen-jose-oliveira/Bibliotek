@@ -57,7 +57,7 @@ public class BookService {
     }
 
     public BookDTO createBook(BookDTO bookDTO, String email) {
-        User owner = userRepository.findByEmail(email);
+        User owner = userRepository.findByEmailIgnoreCase(email).orElse(null);
         if (owner == null) {
             throw new RuntimeException("User not found with email: " + email);
         }
@@ -112,7 +112,7 @@ public class BookService {
     }
 
     public BookDTO updateBook(int id, BookDTO bookDTO, String email) {
-        User owner = userRepository.findByEmail(email);
+        User owner = userRepository.findByEmailIgnoreCase(email).orElse(null);
         if (owner == null) {
             throw new RuntimeException("User not found with email: " + email);
         }
@@ -151,7 +151,7 @@ public class BookService {
     }
 
     public List<BookDTO> getBooksByOwner(String email) {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
         if (user == null) {
             return List.of();
         }
@@ -161,7 +161,7 @@ public class BookService {
     }
 
     public List<BookDTO> getBooksByOwnerWithDetails(String email) {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
         List<Book> books = bookRepository.findByOwner(user);
 
         for (Book book : books) {
@@ -213,7 +213,7 @@ public class BookService {
     }
 
     public List<BookDTO> getBooksByOwnerWithStatus(String email) {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
         if (user == null)
             return List.of();
 

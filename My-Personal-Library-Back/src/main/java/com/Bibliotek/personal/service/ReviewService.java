@@ -38,7 +38,7 @@ public class ReviewService {
     }
 
     public ReviewDTO createReview(ReviewRequestDTO reviewRequest, String userEmail) {
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
         if (user == null) {
             throw new ResourceNotFoundException("User not found with email: " + userEmail);
         }
@@ -75,7 +75,7 @@ public class ReviewService {
     }
 
     public ReviewDTO updateReview(int reviewId, ReviewRequestDTO reviewRequest, String userEmail) {
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
         if (user == null) {
             throw new ResourceNotFoundException("User not found with email: " + userEmail);
         }
@@ -95,7 +95,7 @@ public class ReviewService {
     }
 
     public boolean deleteReview(int reviewId, String userEmail) {
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
         if (user == null) {
             throw new ResourceNotFoundException("User not found with email: " + userEmail);
         }
@@ -121,7 +121,7 @@ public class ReviewService {
     }
 
     public List<ReviewDTO> getReviewsByUser(String userEmail) {
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
         if (user == null) {
             throw new ResourceNotFoundException("User not found with email: " + userEmail);
         }

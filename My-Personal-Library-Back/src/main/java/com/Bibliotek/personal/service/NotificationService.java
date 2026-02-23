@@ -32,7 +32,7 @@ public class NotificationService {
     }
 
     public List<NotificationDTO> getUserNotifications(String userEmail) {
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
         if (user == null) {
             return List.of();
         }
@@ -44,7 +44,7 @@ public class NotificationService {
     }
 
     public long getUnreadCount(String userEmail) {
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
         if (user == null) {
             return 0;
         }
@@ -53,7 +53,7 @@ public class NotificationService {
 
     @Transactional
     public void markAsRead(int notificationId, String userEmail) {
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
         if (user == null) {
             return;
         }
@@ -68,7 +68,7 @@ public class NotificationService {
 
     @Transactional
     public void markAllAsRead(String userEmail) {
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
         if (user == null) {
             return;
         }
@@ -80,7 +80,7 @@ public class NotificationService {
 
     @Transactional
     public void deleteNotification(int notificationId, String userEmail) {
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
         if (user == null) {
             return;
         }
@@ -92,7 +92,7 @@ public class NotificationService {
 
     @Transactional
     public void deleteAllNotifications(String userEmail) {
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
         if (user == null) {
             return;
         }
@@ -104,7 +104,7 @@ public class NotificationService {
     @Transactional
     public void createNotification(String userEmail, Notification.NotificationType type, String title, String message,
                                    String relatedUserEmail, Integer relatedBookId, Integer relatedId) {
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
         if (user == null) {
             return;
         }
@@ -118,7 +118,7 @@ public class NotificationService {
         notification.setRelatedId(relatedId);
 
         if (relatedUserEmail != null) {
-            User relatedUser = userRepository.findByEmail(relatedUserEmail);
+            User relatedUser = userRepository.findByEmailIgnoreCase(relatedUserEmail).orElse(null);
             if (relatedUser != null) {
                 notification.setRelatedUser(relatedUser);
             }

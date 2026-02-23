@@ -51,7 +51,7 @@ public class UserBookStatusController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         
-        User user = userService.findByEmail(email);
+        User user = userService.findByEmailIgnoreCase(email);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

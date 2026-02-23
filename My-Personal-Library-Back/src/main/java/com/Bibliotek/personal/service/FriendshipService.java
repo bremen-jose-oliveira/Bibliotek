@@ -26,8 +26,8 @@ public class FriendshipService {
     }
 
     public boolean sendFriendRequest(String userEmail, String friendEmail) {
-        User user = userRepository.findByEmail(userEmail);
-        User friend = userRepository.findByEmail(friendEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
+        User friend = userRepository.findByEmailIgnoreCase(friendEmail).orElse(null);
 
         if (user == null || friend == null || user.equals(friend)) {
             return false;
@@ -52,8 +52,8 @@ public class FriendshipService {
     }
 
     public boolean approveFriendRequest(String userEmail, String friendEmail) {
-        User user = userRepository.findByEmail(userEmail);
-        User friend = userRepository.findByEmail(friendEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
+        User friend = userRepository.findByEmailIgnoreCase(friendEmail).orElse(null);
 
         if (user == null || friend == null) {
             return false;
@@ -71,8 +71,8 @@ public class FriendshipService {
     }
 
     public boolean rejectFriendRequest(String userEmail, String friendEmail) {
-        User user = userRepository.findByEmail(userEmail);
-        User friend = userRepository.findByEmail(friendEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
+        User friend = userRepository.findByEmailIgnoreCase(friendEmail).orElse(null);
 
         if (user == null || friend == null) {
             return false;
@@ -91,7 +91,7 @@ public class FriendshipService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserEmail = authentication.getName();
 
-        User user = userRepository.findByEmail(currentUserEmail);
+        User user = userRepository.findByEmailIgnoreCase(currentUserEmail).orElse(null);
         if (user == null) {
             return List.of();
         }
@@ -121,7 +121,7 @@ public class FriendshipService {
     }
 
     public List<FriendshipDTO> getIncomingFriendRequests(String userEmail) {
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmailIgnoreCase(userEmail).orElse(null);
         if (user == null) {
             return List.of();
         }
