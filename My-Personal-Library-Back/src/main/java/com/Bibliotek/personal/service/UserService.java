@@ -54,6 +54,11 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    /** Case-insensitive lookup used for JWT validation so token subject matches DB regardless of case. */
+    public User findByEmailIgnoreCase(String email) {
+        return userRepository.findByEmailIgnoreCase(email).orElse(null);
+    }
+
     public UserDTO getUserById(int id) {
         Optional<User> user = userRepository.findById(id);
         return user.map(UserMapper::toDTO).orElse(null);
