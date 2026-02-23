@@ -65,25 +65,32 @@ public class UserService {
     }
 
     public UserDTO createUser(UserRegistrationDTO userDTO) {
-        User existingUser = userRepository.findByEmail(userDTO.getEmail());
-        if (existingUser != null) {
+        String email = userDTO.getEmail() != null ? userDTO.getEmail().trim() : "";
+        String username = userDTO.getUsername() != null ? userDTO.getUsername().trim() : "";
+        String password = userDTO.getPassword() != null ? userDTO.getPassword().trim() : null;
+
+        if (existingUserByEmail(email) != null) {
             throw new RuntimeException("User with this email already exists");
         }
 
         User user = new User();
-        user.setEmail(userDTO.getEmail());
-        user.setUsername(userDTO.getUsername());
+        user.setEmail(email);
+        user.setUsername(username);
 
-        if (userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
+        if (password == null || password.isEmpty()) {
             String defaultPassword = "OAuthGeneratedPassword123";
             user.setPassword(new BCryptPasswordEncoder().encode(defaultPassword));
         } else {
-            user.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword()));
+            user.setPassword(new BCryptPasswordEncoder().encode(password));
         }
 
         userRepository.save(user);
 
         return UserMapper.toDTO(user);
+    }
+
+    private User existingUserByEmail(String email) {
+        return userRepository.findByEmailIgnoreCase(email).orElse(null);
     }
 
     public UserDTO updateUser(int id, UserDTO userDTO) {
@@ -109,8 +116,13 @@ public class UserService {
     }
 
     public UserDTO login(String email, String password) {
-        User user = userRepository.findByEmail(email);
-        if (user == null || !new BCryptPasswordEncoder().matches(password, user.getPassword())) {
+        if (email == null || password == null) {
+            throw new RuntimeException("Invalid credentials");
+        }
+        String trimmedEmail = email.trim();
+        String trimmedPassword = password.trim();
+        User user = userRepository.findByEmailIgnoreCase(trimmedEmail).orElse(null);
+        if (user == null || !new BCryptPasswordEncoder().matches(trimmedPassword, user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
         return UserMapper.toDTO(user);

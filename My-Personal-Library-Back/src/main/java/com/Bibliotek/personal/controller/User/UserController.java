@@ -98,13 +98,13 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
             UserDTO user = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
             String token = jwtUtil.generateToken(user.getEmail());
             return ResponseEntity.ok(new JwtResponse(token));
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new ApiResponse("Invalid email or password", false, 401), HttpStatus.UNAUTHORIZED);
         }
     }
 
