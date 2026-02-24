@@ -5,6 +5,7 @@ import com.Bibliotek.personal.dto.ExchangeDTO;
 import com.Bibliotek.personal.dto.ReviewDTO;
 import com.Bibliotek.personal.entity.Book;
 import com.Bibliotek.personal.entity.BookDetails;
+import com.Bibliotek.personal.entity.Exchange;
 import com.Bibliotek.personal.entity.User;
 import com.Bibliotek.personal.entity.UserBookStatus;
 import com.Bibliotek.personal.mapper.BookMapper;
@@ -14,6 +15,7 @@ import com.Bibliotek.personal.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -245,6 +247,19 @@ public class BookService {
 
         userBookStatusRepository.findStatusByBookId(bookId)
                 .ifPresent(s -> bookDTO.setReadingStatus(s.name()));
+
+        // Derive exchange status from actual exchanges (so it shows/updates correctly on book details)
+        List<Exchange> exchanges = exchangeRepository.findExchangesByBook(book);
+        if (!exchanges.isEmpty()) {
+            Exchange latest = exchanges.stream()
+                    .max(Comparator.comparing(Exchange::getUpdatedAt, Comparator.nullsLast(Comparator.naturalOrder())))
+                    .orElse(null);
+            if (latest != null && latest.getStatus() != null) {
+                bookDTO.setExchangeStatus(latest.getStatus().name());
+            }
+        } else {
+            bookDTO.setExchangeStatus("AVAILABLE");
+        }
 
         return bookDTO;
     }

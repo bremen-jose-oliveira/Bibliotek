@@ -54,4 +54,10 @@ public class ExchangeController {
         return new ResponseEntity<>(exchanges, HttpStatus.OK);
     }
 
+    @DeleteMapping("/{exchangeId}")
+    public ResponseEntity<Void> deleteExchange(@PathVariable int exchangeId) {
+        exchangeService.deleteExchange(exchangeId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }

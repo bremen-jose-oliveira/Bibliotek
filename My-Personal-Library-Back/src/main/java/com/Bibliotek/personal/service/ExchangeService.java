@@ -7,6 +7,7 @@ import com.Bibliotek.personal.entity.Book;
 import com.Bibliotek.personal.entity.Exchange;
 import com.Bibliotek.personal.entity.Notification;
 import com.Bibliotek.personal.entity.User;
+import com.Bibliotek.personal.exception.InvalidRequestException;
 import com.Bibliotek.personal.exception.ResourceNotFoundException;
 import com.Bibliotek.personal.mapper.ExchangeMapper;
 import com.Bibliotek.personal.repository.BookRepository;
@@ -142,6 +143,32 @@ public class ExchangeService {
         return exchangeRepository.findByBookOwnerIdWithBookAndBorrower(user.getId()).stream()
                 .map(ExchangeMapper::toDTO)
                 .toList();
+    }
+
+    /**
+     * Remove a RETURNED exchange from the list (allowed only for borrower or book owner).
+     */
+    public void deleteExchange(int exchangeId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmailIgnoreCase(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
+
+        Exchange exchange = exchangeRepository.findByIdWithBookAndBorrower(exchangeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Exchange not found with ID: " + exchangeId));
+
+        if (exchange.getStatus() != Exchange.ExchangeStatus.RETURNED) {
+            throw new InvalidRequestException("Only returned exchanges can be removed from the list.");
+        }
+
+        int borrowerId = exchange.getBorrower() != null ? exchange.getBorrower().getId() : -1;
+        int ownerId = exchange.getBook() != null && exchange.getBook().getOwner() != null
+                ? exchange.getBook().getOwner().getId() : -1;
+        if (user.getId() != borrowerId && user.getId() != ownerId) {
+            throw new InvalidRequestException("You can only remove your own returned borrows or lending records.");
+        }
+
+        exchangeRepository.delete(exchange);
     }
 
 }
