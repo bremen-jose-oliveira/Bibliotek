@@ -16,12 +16,36 @@ import java.util.Optional;
 public interface ExchangeRepository  extends JpaRepository<Exchange, Integer>{
     List<Exchange> findExchangesByBook(Book book);
 
+    @Query("SELECT e FROM Exchange e " +
+           "LEFT JOIN FETCH e.book b " +
+           "LEFT JOIN FETCH b.bookDetails " +
+           "LEFT JOIN FETCH b.owner " +
+           "LEFT JOIN FETCH e.borrower " +
+           "WHERE e.id = :id")
+    Optional<Exchange> findByIdWithBookAndBorrower(@Param("id") int id);
+
 
     @Query("SELECT e.status FROM Exchange e WHERE e.book.id = :bookId")
     Optional<Exchange.ExchangeStatus> findStatusByBookId(@Param("bookId") int bookId);
 
     List<Exchange> findByBorrowerId(int userId);
 
+    @Query("SELECT DISTINCT e FROM Exchange e " +
+           "LEFT JOIN FETCH e.book b " +
+           "LEFT JOIN FETCH b.bookDetails " +
+           "LEFT JOIN FETCH b.owner " +
+           "LEFT JOIN FETCH e.borrower " +
+           "WHERE e.borrower.id = :userId")
+    List<Exchange> findByBorrowerIdWithBookAndBorrower(@Param("userId") int userId);
+
     @Query("SELECT e FROM Exchange e WHERE e.book.owner.id = :ownerId")
     List<Exchange> findByBookOwnerId(@Param("ownerId") int ownerId);
+
+    @Query("SELECT DISTINCT e FROM Exchange e " +
+           "LEFT JOIN FETCH e.book b " +
+           "LEFT JOIN FETCH b.bookDetails " +
+           "LEFT JOIN FETCH b.owner " +
+           "LEFT JOIN FETCH e.borrower " +
+           "WHERE b.owner.id = :ownerId")
+    List<Exchange> findByBookOwnerIdWithBookAndBorrower(@Param("ownerId") int ownerId);
 }

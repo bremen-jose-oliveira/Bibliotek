@@ -1,8 +1,8 @@
 package com.Bibliotek.personal.controller;
 
+import com.Bibliotek.personal.dto.ExchangeDTO;
 import com.Bibliotek.personal.dto.ExchangeRequestDTO;
 import com.Bibliotek.personal.dto.ExchangeStatusUpdateDTO;
-import com.Bibliotek.personal.entity.Exchange;
 import com.Bibliotek.personal.service.ExchangeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,35 +23,34 @@ public class ExchangeController {
     }
 
     @PostMapping("/request")
-    public ResponseEntity<Exchange> requestExchange(@RequestBody ExchangeRequestDTO exchangeRequest) {
-        Exchange exchange = exchangeService.requestExchange(exchangeRequest);
-        return new ResponseEntity<>(exchange, HttpStatus.CREATED);
+    public ResponseEntity<ExchangeDTO> requestExchange(@RequestBody ExchangeRequestDTO exchangeRequest) {
+        ExchangeDTO dto = exchangeService.requestExchange(exchangeRequest);
+        return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
-
     @PutMapping("/{exchangeId}/status")
-    public ResponseEntity<Exchange> updateExchangeStatus(
+    public ResponseEntity<ExchangeDTO> updateExchangeStatus(
             @PathVariable int exchangeId,
             @RequestBody ExchangeStatusUpdateDTO statusUpdate) {
-        Exchange updatedExchange = exchangeService.updateExchangeStatus(exchangeId, statusUpdate.getStatus());
-        return new ResponseEntity<>(updatedExchange, HttpStatus.OK);
+        ExchangeDTO dto = exchangeService.updateExchangeStatus(exchangeId, statusUpdate.getStatus());
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<Exchange>> getUserExchanges() {
-        List<Exchange> exchanges = exchangeService.getExchangesForLoggedInUser();
+    public ResponseEntity<List<ExchangeDTO>> getUserExchanges() {
+        List<ExchangeDTO> exchanges = exchangeService.getExchangesForLoggedInUser();
         return new ResponseEntity<>(exchanges, HttpStatus.OK);
     }
 
     @GetMapping("/borrowed")
-    public ResponseEntity<List<Exchange>> getBorrowedBooks() {
-        List<Exchange> exchanges = exchangeService.getExchangesForLoggedInUser();
+    public ResponseEntity<List<ExchangeDTO>> getBorrowedBooks() {
+        List<ExchangeDTO> exchanges = exchangeService.getExchangesForLoggedInUser();
         return new ResponseEntity<>(exchanges, HttpStatus.OK);
     }
 
     @GetMapping("/lending")
-    public ResponseEntity<List<Exchange>> getLendingBooks() {
-        List<Exchange> exchanges = exchangeService.getLendingExchangesForLoggedInUser();
+    public ResponseEntity<List<ExchangeDTO>> getLendingBooks() {
+        List<ExchangeDTO> exchanges = exchangeService.getLendingExchangesForLoggedInUser();
         return new ResponseEntity<>(exchanges, HttpStatus.OK);
     }
 

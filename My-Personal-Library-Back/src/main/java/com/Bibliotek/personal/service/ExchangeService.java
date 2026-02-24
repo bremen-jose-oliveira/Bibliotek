@@ -1,12 +1,14 @@
 package com.Bibliotek.personal.service;
 
 
+import com.Bibliotek.personal.dto.ExchangeDTO;
 import com.Bibliotek.personal.dto.ExchangeRequestDTO;
 import com.Bibliotek.personal.entity.Book;
 import com.Bibliotek.personal.entity.Exchange;
 import com.Bibliotek.personal.entity.Notification;
 import com.Bibliotek.personal.entity.User;
 import com.Bibliotek.personal.exception.ResourceNotFoundException;
+import com.Bibliotek.personal.mapper.ExchangeMapper;
 import com.Bibliotek.personal.repository.BookRepository;
 import com.Bibliotek.personal.repository.ExchangeRepository;
 import com.Bibliotek.personal.repository.UserRepository;
@@ -36,7 +38,7 @@ public class ExchangeService {
     }
 
 
-    public Exchange requestExchange(ExchangeRequestDTO exchangeRequest) {
+    public ExchangeDTO requestExchange(ExchangeRequestDTO exchangeRequest) {
         User borrower = userRepository.findById(exchangeRequest.getBorrowerId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + exchangeRequest.getBorrowerId()));
 
@@ -47,7 +49,7 @@ public class ExchangeService {
         newExchange.setBorrower(borrower);
         newExchange.setBook(book);
         newExchange.setStatus(Exchange.ExchangeStatus.REQUESTED);
-        newExchange = exchangeRepository.save(newExchange);
+        final Exchange saved = exchangeRepository.save(newExchange);
 
         User owner = book.getOwner();
         String bookTitle = book.getBookDetails() != null ? book.getBookDetails().getTitle() : "a book";
@@ -59,13 +61,15 @@ public class ExchangeService {
                     borrower.getUsername() + " wants to borrow \"" + bookTitle + "\"",
                     borrower.getEmail(),
                     book.getId(),
-                    newExchange.getId());
+                    saved.getId());
         }
 
-        return newExchange;
+        return exchangeRepository.findByIdWithBookAndBorrower(saved.getId())
+                .map(ExchangeMapper::toDTO)
+                .orElseGet(() -> ExchangeMapper.toDTO(saved));
     }
 
-    public Exchange updateExchangeStatus(int exchangeId, Exchange.ExchangeStatus status) {
+    public ExchangeDTO updateExchangeStatus(int exchangeId, Exchange.ExchangeStatus status) {
         Exchange exchange = exchangeRepository.findById(exchangeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Exchange not found with ID: " + exchangeId));
 
@@ -76,10 +80,10 @@ public class ExchangeService {
             exchange.setExchangeDate(LocalDate.now());
         }
 
-        exchange = exchangeRepository.save(exchange);
+        final Exchange saved = exchangeRepository.save(exchange);
 
-        User borrower = exchange.getBorrower();
-        Book book = exchange.getBook();
+        User borrower = saved.getBorrower();
+        Book book = saved.getBook();
         User owner = book != null ? book.getOwner() : null;
         String ownerUsername = owner != null ? owner.getUsername() : "The owner";
         String bookTitle = (book != null && book.getBookDetails() != null) ? book.getBookDetails().getTitle() : "the book";
@@ -92,7 +96,7 @@ public class ExchangeService {
                     ownerUsername + " accepted your request to borrow \"" + bookTitle + "\"",
                     owner != null ? owner.getEmail() : null,
                     book != null ? book.getId() : null,
-                    exchange.getId());
+                    saved.getId());
         } else if (status == Exchange.ExchangeStatus.REJECTED && borrower != null) {
             notificationService.createNotification(
                     borrower.getEmail(),
@@ -101,16 +105,18 @@ public class ExchangeService {
                     ownerUsername + " declined your request to borrow \"" + bookTitle + "\"",
                     owner != null ? owner.getEmail() : null,
                     book != null ? book.getId() : null,
-                    exchange.getId());
+                    saved.getId());
         }
 
-        return exchange;
+        return exchangeRepository.findByIdWithBookAndBorrower(exchangeId)
+                .map(ExchangeMapper::toDTO)
+                .orElseGet(() -> ExchangeMapper.toDTO(saved));
     }
 
     public List<Exchange> getExchangesByUser(int userId) {
         return exchangeRepository.findByBorrowerId(userId);
     }
-    public List<Exchange> getExchangesForLoggedInUser() {
+    public List<ExchangeDTO> getExchangesForLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
@@ -119,10 +125,12 @@ public class ExchangeService {
             throw new ResourceNotFoundException("User not found with email: " + userEmail);
         }
 
-        return exchangeRepository.findByBorrowerId(user.getId());
+        return exchangeRepository.findByBorrowerIdWithBookAndBorrower(user.getId()).stream()
+                .map(ExchangeMapper::toDTO)
+                .toList();
     }
 
-    public List<Exchange> getLendingExchangesForLoggedInUser() {
+    public List<ExchangeDTO> getLendingExchangesForLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
@@ -131,7 +139,9 @@ public class ExchangeService {
             throw new ResourceNotFoundException("User not found with email: " + userEmail);
         }
 
-        return exchangeRepository.findByBookOwnerId(user.getId());
+        return exchangeRepository.findByBookOwnerIdWithBookAndBorrower(user.getId()).stream()
+                .map(ExchangeMapper::toDTO)
+                .toList();
     }
 
 }

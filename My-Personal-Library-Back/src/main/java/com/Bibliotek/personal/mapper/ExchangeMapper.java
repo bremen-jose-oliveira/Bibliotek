@@ -8,6 +8,7 @@ public class ExchangeMapper {
 
     // Convert Exchange entity to ExchangeDTO
     public static ExchangeDTO toDTO(Exchange exchange) {
+        if (exchange == null) return null;
         ExchangeDTO exchangeDTO = new ExchangeDTO();
         exchangeDTO.setId(exchange.getId());
         exchangeDTO.setStatus(exchange.getStatus());
@@ -15,9 +16,12 @@ public class ExchangeMapper {
         exchangeDTO.setCreatedAt(exchange.getCreatedAt());
         exchangeDTO.setUpdatedAt(exchange.getUpdatedAt());
 
-        // Map related entities (Book and User)
-        exchangeDTO.setBook(BookMapper.toDTO(exchange.getBook())); // Convert Book entity to BookDTO
-        exchangeDTO.setBorrower(UserMapper.toDTO(exchange.getBorrower())); // Convert User entity to UserDTO
+        if (exchange.getBook() != null) {
+            exchangeDTO.setBook(BookMapper.toDTO(exchange.getBook()));
+        }
+        if (exchange.getBorrower() != null) {
+            exchangeDTO.setBorrower(UserMapper.toDTO(exchange.getBorrower()));
+        }
 
         return exchangeDTO;
     }
