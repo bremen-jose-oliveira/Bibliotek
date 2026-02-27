@@ -15,7 +15,12 @@ public class BookDetails {
     private String author;
     private int year;
     private String publisher;
+
+    // Cover URLs from Google/Open Library can be longer than 255 chars, so store as TEXT.
+    @Column(columnDefinition = "TEXT")
     private String cover;
+
+    // Descriptions can be very long (full summaries), so store as TEXT.
     @Column(columnDefinition = "TEXT")
     private String description;
 
