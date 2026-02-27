@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,6 +37,41 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    /**
+     * Exchange an expired (or valid) JWT for a new one. No password needed.
+     * Send current token in Authorization: Bearer &lt;token&gt; or in body as "token".
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestBody(required = false) Map<String, String> body) {
+        String token = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        }
+        if ((token == null || token.isBlank()) && body != null && body.containsKey("token")) {
+            token = body.get("token");
+        }
+        if (token == null || token.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Collections.singletonMap("error", "Token required"));
+        }
+        String email = jwtUtil.extractEmailAllowExpired(token);
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Collections.singletonMap("error", "Invalid or expired token"));
+        }
+        User user = userService.findByEmailIgnoreCase(email);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Collections.singletonMap("error", "User not found"));
+        }
+        String newToken = jwtUtil.generateToken(user.getEmail());
+        Map<String, String> response = new HashMap<>();
+        response.put("token", newToken);
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
